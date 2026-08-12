@@ -1,0 +1,52 @@
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css");
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #176B52;
+  --color-primary-dark: #0D4938;
+  --color-secondary: #2878A7;
+  --color-point: #F2B544;
+  --color-bg-light: #F7F7F3;
+  --color-text-main: #222222;
+  --color-text-sub: #666666;
+  --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Noto Sans KR", sans-serif;
+}
+
+:root {
+  --background: #F7F7F3;
+  --foreground: #222222;
+  --primary: #176B52;
+  --primary-dark: #0D4938;
+  --secondary: #2878A7;
+  --point: #F2B544;
+  --text-main: #222222;
+  --text-sub: #666666;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Noto Sans KR", sans-serif;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Dropdown Animation Utility */
+.dropdown-animate {
+  animation: dropdownFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
