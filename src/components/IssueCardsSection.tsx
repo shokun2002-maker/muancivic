@@ -1,11 +1,32 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { MOCK_ISSUES } from "@/data/mockData";
-import { ChevronRight, AlertCircle, ShieldCheck, Activity, Compass } from "lucide-react";
+import { getPublishedIssues } from "@/lib/data/issues";
+import { IssueArticle } from "@/data/issues";
+import { ChevronRight, AlertCircle, ShieldCheck, Activity, Compass, Loader2 } from "lucide-react";
 
 export default function IssueCardsSection() {
+  const [issues, setIssues] = useState<IssueArticle[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        setLoading(true);
+        const data = await getPublishedIssues();
+        setIssues(data);
+      } catch (err: any) {
+        console.error("IssueCardsSection fetch error:", err);
+        setError("현안 데이터를 불러오는 도중 오류가 발생했습니다.");
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadData();
+  }, []);
+
   const getCategoryIcon = (category: string) => {
     switch (category) {
       case "군정 · 안보":
@@ -17,13 +38,6 @@ export default function IssueCardsSection() {
       default:
         return <Compass className="w-4 h-4 text-emerald-600" />;
     }
-  };
-
-  const getSlugByTitle = (title: string) => {
-    if (title.includes("군공항")) return "gwangju-airport";
-    if (title.includes("의료폐기물")) return "medical-waste";
-    if (title.includes("송전선로")) return "power-transmission";
-    return "environment-development";
   };
 
   return (
@@ -52,44 +66,52 @@ export default function IssueCardsSection() {
           </Link>
         </div>
 
+        {/* Loading State */}
+        {loading && (
+          <div className="flex flex-col items-center justify-center py-16 space-y-3">
+            <Loader2 className="w-8 h-8 text-[#176B52] animate-spin" />
+            <p className="text-xs font-bold text-gray-500">주요 현안 데이터를 불러오는 중...</p>
+          </div>
+        )}
+
+        {/* Error State */}
+        {!loading && error && (
+          <div className="bg-red-50 border border-red-200 p-6 rounded-2xl text-center text-xs font-bold text-red-600">
+            {error}
+          </div>
+        )}
+
         {/* 4 Issue Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
-          {MOCK_ISSUES.map((item) => {
-            const slug = getSlugByTitle(item.title);
-            return (
+        {!loading && !error && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+            {issues.slice(0, 4).map((item) => (
               <div
                 key={item.id}
                 className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200/80 hover:shadow-xl hover:border-[#176B52]/40 transition-all duration-300 flex flex-col justify-between group"
               >
                 <div>
-                  {/* Category & Status Badge Header */}
                   <div className="flex items-center justify-between gap-2 mb-4">
                     <span className="inline-flex items-center gap-1.5 text-xs font-bold text-gray-700 bg-gray-100 px-2.5 py-1 rounded-md">
                       {getCategoryIcon(item.category)}
                       {item.category}
                     </span>
-                    <span
-                      className={`text-xs font-bold px-2.5 py-1 rounded-full border ${item.statusBadgeColor}`}
-                    >
+                    <span className="text-xs font-bold px-2.5 py-1 rounded-full border bg-emerald-50 text-[#176B52] border-[#176B52]/30">
                       {item.status}
                     </span>
                   </div>
 
-                  {/* Card Title */}
                   <h3 className="text-xl font-bold text-[#222222] group-hover:text-[#176B52] transition-colors leading-snug mb-3">
                     {item.title}
                   </h3>
 
-                  {/* Card Short Description */}
                   <p className="text-[#666666] text-sm leading-relaxed line-clamp-3 mb-6">
-                    {item.description}
+                    {item.summary}
                   </p>
                 </div>
 
-                {/* Action / Learn More */}
                 <div className="pt-4 border-t border-gray-100">
                   <Link
-                    href={`/issues/current/${slug}`}
+                    href={`/issues/current/${item.slug}`}
                     className="w-full flex items-center justify-between text-xs font-bold text-[#176B52] group-hover:text-[#0D4938]"
                   >
                     <span>자세히 보기</span>
@@ -97,9 +119,9 @@ export default function IssueCardsSection() {
                   </Link>
                 </div>
               </div>
-            );
-          })}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { use } from "react";
+import React, { useState, useEffect, use } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -8,8 +8,9 @@ import SubHero from "@/components/SubHero";
 import StatusBadge from "@/components/StatusBadge";
 import CategoryBadge from "@/components/CategoryBadge";
 import ShareButtons from "@/components/ShareButtons";
-import { ISSUES_DATA } from "@/data/issues";
-import { ChevronLeft, FileText, CheckCircle2, Calendar, Download } from "lucide-react";
+import { getIssueBySlug } from "@/lib/data/issues";
+import { IssueArticle } from "@/data/issues";
+import { ChevronLeft, FileText, CheckCircle2, Calendar, Download, Loader2 } from "lucide-react";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -17,11 +18,33 @@ interface Props {
 
 export default function IssueDetailPage({ params }: Props) {
   const { slug } = use(params);
-  const issue = ISSUES_DATA.find((item) => item.slug === slug);
+  const [issue, setIssue] = useState<IssueArticle | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  if (!issue) {
+  useEffect(() => {
+    async function loadDetail() {
+      setLoading(true);
+      const data = await getIssueBySlug(slug);
+      setIssue(data);
+      setLoading(false);
+    }
+    loadDetail();
+  }, [slug]);
+
+  if (!loading && !issue) {
     notFound();
   }
+
+  if (loading) {
+    return (
+      <div className="min-h-[60vh] flex flex-col items-center justify-center">
+        <Loader2 className="w-8 h-8 text-[#176B52] animate-spin mb-2" />
+        <p className="text-xs font-bold text-gray-500">현안 정보를 읽어오는 중입니다...</p>
+      </div>
+    );
+  }
+
+  if (!issue) return null;
 
   return (
     <div>

@@ -2,3 +2,7 @@
 .next/
 node_modules/
 *.log
+
+# local env files
+.env*.local
+.env.local

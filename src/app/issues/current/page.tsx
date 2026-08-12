@@ -1,19 +1,32 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import SubHero from "@/components/SubHero";
 import FilterBar from "@/components/FilterBar";
 import StatusBadge from "@/components/StatusBadge";
 import CategoryBadge from "@/components/CategoryBadge";
-import { ISSUES_DATA, ISSUE_CATEGORIES } from "@/data/issues";
-import { ChevronRight, Compass } from "lucide-react";
+import { getPublishedIssues } from "@/lib/data/issues";
+import { ISSUE_CATEGORIES, IssueArticle } from "@/data/issues";
+import { Compass, Calendar, ChevronRight, Loader2 } from "lucide-react";
 
 export default function CurrentIssuesListPage() {
   const [activeCategory, setActiveCategory] = useState("전체");
+  const [issues, setIssues] = useState<IssueArticle[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const filteredIssues = ISSUES_DATA.filter((item) => {
+  useEffect(() => {
+    async function loadData() {
+      setLoading(true);
+      const data = await getPublishedIssues();
+      setIssues(data);
+      setLoading(false);
+    }
+    loadData();
+  }, []);
+
+  const filteredIssues = issues.filter((item) => {
     if (activeCategory === "전체") return true;
     return item.category.includes(activeCategory);
   });
@@ -44,7 +57,7 @@ export default function CurrentIssuesListPage() {
               주요 현안
             </h2>
             <p className="text-sm sm:text-base text-[#666666] mt-2 font-medium">
-              우리가 함께 살펴봐야 할 무안의 중요한 이야기
+              무안의 미래와 군민의 삶에 직결된 주요 의제입니다.
             </p>
           </div>
         </div>
@@ -58,16 +71,21 @@ export default function CurrentIssuesListPage() {
           />
         </div>
 
-        {/* Issues Grid */}
-        {filteredIssues.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+        {/* Loading State */}
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-20">
+            <Loader2 className="w-8 h-8 text-[#176B52] animate-spin mb-2" />
+            <p className="text-xs font-bold text-gray-500">현안 목록을 불러오고 있습니다...</p>
+          </div>
+        ) : (
+          /* Cards Grid */
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
             {filteredIssues.map((item) => (
               <div
                 key={item.id}
                 className="bg-white rounded-3xl overflow-hidden border border-gray-200/80 shadow-sm hover:shadow-xl hover:border-[#176B52]/40 transition-all duration-300 flex flex-col justify-between group"
               >
                 <div>
-                  {/* Thumbnail Image */}
                   <div className="relative aspect-video w-full bg-gray-100 overflow-hidden">
                     <Image
                       src={item.coverImage}
@@ -75,45 +93,43 @@ export default function CurrentIssuesListPage() {
                       fill
                       className="object-cover group-hover:scale-105 transition-transform duration-500"
                     />
-                    <div className="absolute top-3 left-3 z-10">
+                    <div className="absolute top-4 left-4 z-10">
                       <CategoryBadge category={item.category} />
+                    </div>
+                    <div className="absolute top-4 right-4 z-10">
+                      <StatusBadge status={item.status} />
                     </div>
                   </div>
 
-                  {/* Card Content */}
-                  <div className="p-6">
-                    <div className="mb-3">
-                      <StatusBadge status={item.status} />
-                    </div>
-
-                    <h3 className="text-lg font-bold text-[#222222] group-hover:text-[#176B52] transition-colors leading-snug mb-3">
+                  <div className="p-6 sm:p-8">
+                    <h3 className="text-xl font-bold text-[#222222] group-hover:text-[#176B52] transition-colors leading-snug mb-3">
                       {item.title}
                     </h3>
 
-                    <p className="text-xs text-[#666666] leading-relaxed line-clamp-3 mb-4">
+                    <p className="text-xs sm:text-sm text-[#666666] leading-relaxed line-clamp-3 mb-6">
                       {item.summary}
                     </p>
                   </div>
                 </div>
 
-                {/* Card Action */}
-                <div className="p-6 pt-0">
-                  <Link
-                    href={`/issues/current/${item.slug}`}
-                    className="w-full py-2.5 px-4 bg-[#F7F7F3] group-hover:bg-[#176B52] text-[#176B52] group-hover:text-white font-bold text-xs rounded-xl transition-all duration-200 flex items-center justify-between"
-                  >
-                    <span>자세히 보기</span>
-                    <ChevronRight className="w-4 h-4" />
-                  </Link>
+                <div className="p-6 sm:p-8 pt-0">
+                  <div className="pt-4 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
+                    <span className="flex items-center gap-1 font-medium">
+                      <Calendar className="w-3.5 h-3.5 text-gray-400" />
+                      상시 모니터링 중
+                    </span>
+
+                    <Link
+                      href={`/issues/current/${item.slug}`}
+                      className="py-2 px-4 bg-[#F7F7F3] group-hover:bg-[#176B52] text-[#176B52] group-hover:text-white font-bold text-xs rounded-xl transition-all flex items-center gap-1"
+                    >
+                      <span>현안 8대 분석 보기</span>
+                      <ChevronRight className="w-4 h-4" />
+                    </Link>
+                  </div>
                 </div>
               </div>
             ))}
-          </div>
-        ) : (
-          <div className="text-center py-20 bg-white rounded-3xl border border-gray-200">
-            <p className="text-sm font-bold text-gray-500">
-              해당 카테고리의 주요 현안이 아직 등록되지 않았습니다.
-            </p>
           </div>
         )}
       </div>
