@@ -1,17 +1,30 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import SubHero from "@/components/SubHero";
 import FilterBar from "@/components/FilterBar";
 import CategoryBadge from "@/components/CategoryBadge";
-import { MONITORING_DATA, MONITORING_CATEGORIES } from "@/data/monitoring";
-import { ChevronRight, Eye, Calendar, User, Quote } from "lucide-react";
+import { getPublishedMonitoringPosts } from "@/lib/data/monitoring";
+import { MONITORING_CATEGORIES, MonitoringPost } from "@/data/monitoring";
+import { ChevronRight, Eye, Calendar, User, Quote, Loader2 } from "lucide-react";
 
 export default function MonitoringListPage() {
   const [activeCategory, setActiveCategory] = useState("전체");
+  const [posts, setPosts] = useState<MonitoringPost[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const filteredPosts = MONITORING_DATA.filter((item) => {
+  useEffect(() => {
+    async function loadData() {
+      setLoading(true);
+      const data = await getPublishedMonitoringPosts();
+      setPosts(data);
+      setLoading(false);
+    }
+    loadData();
+  }, []);
+
+  const filteredPosts = posts.filter((item) => {
     if (activeCategory === "전체") return true;
     return item.category === activeCategory;
   });
@@ -69,48 +82,55 @@ export default function MonitoringListPage() {
           />
         </div>
 
-        {/* Monitoring Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
-          {filteredPosts.map((item) => (
-            <div
-              key={item.id}
-              className="bg-white rounded-3xl p-8 border border-gray-200/80 shadow-sm hover:shadow-xl hover:border-[#176B52]/40 transition-all duration-300 flex flex-col justify-between group"
-            >
-              <div>
-                <div className="flex items-center justify-between mb-4">
-                  <CategoryBadge category={item.category} />
-                  <span className="flex items-center gap-1 text-xs text-[#666666] font-medium">
-                    <Calendar className="w-3.5 h-3.5" />
-                    {item.date}
-                  </span>
+        {/* Loading / Cards Grid */}
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-20">
+            <Loader2 className="w-8 h-8 text-[#176B52] animate-spin mb-2" />
+            <p className="text-xs font-bold text-gray-500">모니터링 리포트를 읽어오고 있습니다...</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
+            {filteredPosts.map((item) => (
+              <div
+                key={item.id}
+                className="bg-white rounded-3xl p-8 border border-gray-200/80 shadow-sm hover:shadow-xl hover:border-[#176B52]/40 transition-all duration-300 flex flex-col justify-between group"
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <CategoryBadge category={item.category} />
+                    <span className="flex items-center gap-1 text-xs text-[#666666] font-medium">
+                      <Calendar className="w-3.5 h-3.5" />
+                      {item.date}
+                    </span>
+                  </div>
+
+                  <h3 className="text-xl font-bold text-[#222222] group-hover:text-[#176B52] transition-colors leading-snug mb-3">
+                    {item.title}
+                  </h3>
+
+                  <p className="text-sm text-[#666666] leading-relaxed line-clamp-3 mb-6">
+                    {item.summary}
+                  </p>
                 </div>
 
-                <h3 className="text-xl font-bold text-[#222222] group-hover:text-[#176B52] transition-colors leading-snug mb-3">
-                  {item.title}
-                </h3>
+                <div className="pt-4 border-t border-gray-100 flex items-center justify-between">
+                  <span className="flex items-center gap-1 text-xs text-[#666666]">
+                    <User className="w-3.5 h-3.5 text-gray-400" />
+                    <span>{item.author}</span>
+                  </span>
 
-                <p className="text-sm text-[#666666] leading-relaxed line-clamp-3 mb-6">
-                  {item.summary}
-                </p>
+                  <Link
+                    href={`/issues/monitoring/${item.slug}`}
+                    className="py-2 px-4 bg-[#F7F7F3] group-hover:bg-[#176B52] text-[#176B52] group-hover:text-white font-bold text-xs rounded-xl transition-all duration-200 flex items-center gap-1"
+                  >
+                    <span>리포트 자세히 보기</span>
+                    <ChevronRight className="w-4 h-4" />
+                  </Link>
+                </div>
               </div>
-
-              <div className="pt-4 border-t border-gray-100 flex items-center justify-between">
-                <span className="flex items-center gap-1 text-xs text-[#666666]">
-                  <User className="w-3.5 h-3.5 text-gray-400" />
-                  <span>{item.author}</span>
-                </span>
-
-                <Link
-                  href={`/issues/monitoring/${item.slug}`}
-                  className="py-2 px-4 bg-[#F7F7F3] group-hover:bg-[#176B52] text-[#176B52] group-hover:text-white font-bold text-xs rounded-xl transition-all duration-200 flex items-center gap-1"
-                >
-                  <span>리포트 자세히 보기</span>
-                  <ChevronRight className="w-4 h-4" />
-                </Link>
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

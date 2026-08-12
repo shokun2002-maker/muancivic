@@ -1,19 +1,32 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import SubHero from "@/components/SubHero";
 import FilterBar from "@/components/FilterBar";
 import SearchInput from "@/components/SearchInput";
 import CategoryBadge from "@/components/CategoryBadge";
-import { RESOURCES_DATA, RESOURCE_CATEGORIES } from "@/data/resources";
-import { BookOpen, Calendar, Building2, Download, FileText, ChevronRight } from "lucide-react";
+import { getPublishedResources } from "@/lib/data/resources";
+import { RESOURCE_CATEGORIES, PolicyResource } from "@/data/resources";
+import { BookOpen, Calendar, Building2, Download, FileText, ChevronRight, Loader2 } from "lucide-react";
 
 export default function ResourcesListPage() {
   const [activeCategory, setActiveCategory] = useState("전체");
   const [searchQuery, setSearchQuery] = useState("");
+  const [resources, setResources] = useState<PolicyResource[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const filteredResources = RESOURCES_DATA.filter((item) => {
+  useEffect(() => {
+    async function loadData() {
+      setLoading(true);
+      const data = await getPublishedResources();
+      setResources(data);
+      setLoading(false);
+    }
+    loadData();
+  }, []);
+
+  const filteredResources = resources.filter((item) => {
     const matchesCategory =
       activeCategory === "전체" || item.category === activeCategory;
     const matchesSearch =
@@ -76,8 +89,13 @@ export default function ResourcesListPage() {
           />
         </div>
 
-        {/* Resources Grid */}
-        {filteredResources.length > 0 ? (
+        {/* Loading / Resources Grid */}
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-20">
+            <Loader2 className="w-8 h-8 text-[#176B52] animate-spin mb-2" />
+            <p className="text-xs font-bold text-gray-500">정책 자료를 읽어오고 있습니다...</p>
+          </div>
+        ) : filteredResources.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
             {filteredResources.map((item) => (
               <div
