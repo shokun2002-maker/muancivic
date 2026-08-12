@@ -63,22 +63,22 @@ export default function Footer() {
               </h4>
               <ul className="space-y-2.5 text-xs">
                 <li>
-                  <Link href="#about" className="hover:text-white transition-colors">
+                  <Link href="/about/greeting" className="hover:text-white transition-colors">
                     시민연대 소개
                   </Link>
                 </li>
                 <li>
-                  <Link href="#issues" className="hover:text-white transition-colors">
+                  <Link href="/issues/current" className="hover:text-white transition-colors">
                     무안 주요 현안
                   </Link>
                 </li>
                 <li>
-                  <Link href="#citizen-voice" className="hover:text-white transition-colors">
+                  <Link href="/issues/voices" className="hover:text-white transition-colors">
                     시민의 목소리
                   </Link>
                 </li>
                 <li>
-                  <Link href="#join" className="hover:text-white transition-colors">
+                  <Link href="/join" className="hover:text-white transition-colors">
                     함께하기 (회원/후원)
                   </Link>
                 </li>
@@ -91,22 +91,22 @@ export default function Footer() {
               </h4>
               <ul className="space-y-2.5 text-xs">
                 <li>
-                  <Link href="#privacy" className="hover:text-white font-semibold">
+                  <Link href="/privacy" className="hover:text-white font-semibold">
                     개인정보처리방침
                   </Link>
                 </li>
                 <li>
-                  <Link href="#terms" className="hover:text-white transition-colors">
+                  <Link href="/terms" className="hover:text-white transition-colors">
                     이용약관
                   </Link>
                 </li>
                 <li>
-                  <Link href="#join-inquiry" className="hover:text-white transition-colors">
+                  <Link href="/join/contact" className="hover:text-white transition-colors">
                     문의하기
                   </Link>
                 </li>
                 <li>
-                  <Link href="#declaration" className="hover:text-white transition-colors">
+                  <Link href="/about/declaration" className="hover:text-white transition-colors">
                     창립선언문
                   </Link>
                 </li>

@@ -2,22 +2,43 @@
 
 import React from "react";
 import Link from "next/link";
-import { JOIN_US_CARDS } from "@/data/mockData";
 import { UserPlus, Users, Heart, MessageSquare, ArrowRight, HeartHandshake } from "lucide-react";
 
 export default function JoinUsSection() {
-  const getCardIcon = (iconName: string) => {
-    switch (iconName) {
-      case "UserPlus":
-        return <UserPlus className="w-7 h-7 text-[#176B52]" />;
-      case "Users":
-        return <Users className="w-7 h-7 text-[#2878A7]" />;
-      case "Heart":
-        return <Heart className="w-7 h-7 text-red-500 fill-red-500/20" />;
-      default:
-        return <MessageSquare className="w-7 h-7 text-[#F2B544]" />;
-    }
-  };
+  const cards = [
+    {
+      id: "membership",
+      title: "회원가입",
+      description: "시민연대의 회원이 되어 무안의 주권 시대를 함께 열어가 주세요.",
+      icon: <UserPlus className="w-7 h-7 text-[#176B52]" />,
+      actionText: "회원가입 신청",
+      href: "/join/membership",
+    },
+    {
+      id: "participate",
+      title: "시민참여",
+      description: "토론·캠페인·활동에 참여하여 지역사회 변화에 동참해 주세요.",
+      icon: <Users className="w-7 h-7 text-[#2878A7]" />,
+      actionText: "참여 프로그램",
+      href: "/join/participate",
+    },
+    {
+      id: "donate",
+      title: "후원하기",
+      description: "독립적이고 공정한 시민활동을 위해 시민의 힘으로 응원해 주세요.",
+      icon: <Heart className="w-7 h-7 text-red-500 fill-red-500/20" />,
+      actionText: "후원 안내",
+      href: "/join/donate",
+    },
+    {
+      id: "contact",
+      title: "문의·제보",
+      description: "무안의 생활 현안과 행정 모니터링 소식을 자유롭게 제보해 주세요.",
+      icon: <MessageSquare className="w-7 h-7 text-[#F2B544]" />,
+      actionText: "문의 및 제보",
+      href: "/join/contact",
+    },
+  ];
 
   return (
     <section id="join" className="py-16 sm:py-24 bg-[#F7F7F3]">
@@ -38,14 +59,14 @@ export default function JoinUsSection() {
 
         {/* 4 Cards Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
-          {JOIN_US_CARDS.map((card) => (
+          {cards.map((card) => (
             <div
               key={card.id}
               className="bg-white rounded-3xl p-7 border border-gray-200/80 shadow-sm hover:shadow-xl hover:border-[#176B52]/40 transition-all duration-300 flex flex-col justify-between group"
             >
               <div>
                 <div className="p-4 bg-[#F7F7F3] rounded-2xl w-fit mb-6 group-hover:scale-110 transition-transform">
-                  {getCardIcon(card.iconName)}
+                  {card.icon}
                 </div>
 
                 <h3 className="text-xl font-bold text-[#222222] group-hover:text-[#176B52] transition-colors mb-3">

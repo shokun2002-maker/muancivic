@@ -38,23 +38,23 @@ export const NAV_ITEMS: NavItem[] = [
   {
     id: "news",
     name: "시민연대 소식",
-    href: "/#news",
+    href: "/news/activities",
     subItems: [
-      { name: "활동소식", href: "/#news", description: "생생한 현장 활동 기록" },
-      { name: "공지사항", href: "/#notices", description: "알림 및 회원 모임" },
-      { name: "성명·논평", href: "/#statements", description: "공식 입장 발표" },
-      { name: "사진·영상", href: "/#gallery", description: "미디어 갤러리" },
+      { name: "활동소식", href: "/news/activities", description: "생생한 현장 활동 기록" },
+      { name: "공지사항", href: "/news/notices", description: "알림 및 회원 모임 소식" },
+      { name: "성명·논평", href: "/news/statements", description: "시민연대의 공식 입장 발표" },
+      { name: "사진·영상", href: "/news/media", description: "활동 현장 사진과 미디어" },
     ],
   },
   {
     id: "join",
     name: "함께하기",
-    href: "/#join",
+    href: "/join",
     subItems: [
-      { name: "회원가입", href: "/#join", description: "시민연대의 회원이 되는 길" },
-      { name: "시민참여", href: "/#join", description: "토론·캠페인·활동 참여" },
-      { name: "후원하기", href: "/#join", description: "독립적 시민활동 후원" },
-      { name: "문의·제보", href: "/#join", description: "소중한 의견과 제보" },
+      { name: "회원가입", href: "/join/membership", description: "시민연대의 회원이 되는 길" },
+      { name: "시민참여", href: "/join/participate", description: "토론·캠페인·활동 참여" },
+      { name: "후원하기", href: "/join/donate", description: "독립적 시민활동 후원" },
+      { name: "문의·제보", href: "/join/contact", description: "소중한 의견과 현안 제보" },
     ],
   },
 ];
