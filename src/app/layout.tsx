@@ -9,6 +9,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://muancivic.or.kr"),
   title: "무안 자치주권시민연대 공식 홈페이지",
   description:
     "무안의 지역 현안을 알리고 시민 의견을 모으며, 정책과 행정을 모니터링하고 시민의 참여를 연결하는 온라인 시민광장",

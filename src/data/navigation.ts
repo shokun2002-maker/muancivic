@@ -27,12 +27,12 @@ export const NAV_ITEMS: NavItem[] = [
   {
     id: "issues",
     name: "무안 이슈",
-    href: "/#issues",
+    href: "/issues/current",
     subItems: [
-      { name: "주요 현안", href: "/#issues", description: "우리가 살피는 핵심 의제" },
-      { name: "정책·행정 모니터링", href: "/#monitoring", description: "군정 및 예산 감시 리포트" },
-      { name: "시민의 목소리", href: "/#citizen-voice", description: "주민들의 다양한 의견" },
-      { name: "정책자료실", href: "/#policy-archive", description: "지역 발전 연구 자료" },
+      { name: "주요 현안", href: "/issues/current", description: "우리가 살피는 핵심 의제" },
+      { name: "정책·행정 모니터링", href: "/issues/monitoring", description: "군정 및 예산 감시 리포트" },
+      { name: "시민의 목소리", href: "/issues/voices", description: "주민들의 다양한 의견과 제안" },
+      { name: "정책자료실", href: "/issues/resources", description: "지역 발전 연구 및 정보 자료" },
     ],
   },
   {

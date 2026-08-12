@@ -19,6 +19,13 @@ export default function IssueCardsSection() {
     }
   };
 
+  const getSlugByTitle = (title: string) => {
+    if (title.includes("군공항")) return "gwangju-airport";
+    if (title.includes("의료폐기물")) return "medical-waste";
+    if (title.includes("송전선로")) return "power-transmission";
+    return "environment-development";
+  };
+
   return (
     <section id="issues" className="py-16 sm:py-24 bg-[#F7F7F3]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -37,7 +44,7 @@ export default function IssueCardsSection() {
             </p>
           </div>
           <Link
-            href="#issues-all"
+            href="/issues/current"
             className="mt-4 md:mt-0 inline-flex items-center gap-1.5 text-sm font-bold text-[#176B52] hover:text-[#0D4938] group"
           >
             <span>전체 현안 살펴보기</span>
@@ -47,43 +54,51 @@ export default function IssueCardsSection() {
 
         {/* 4 Issue Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
-          {MOCK_ISSUES.map((item) => (
-            <div
-              key={item.id}
-              className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200/80 hover:shadow-xl hover:border-[#176B52]/40 transition-all duration-300 flex flex-col justify-between group"
-            >
-              <div>
-                {/* Category & Status Badge Header */}
-                <div className="flex items-center justify-between gap-2 mb-4">
-                  <span className="inline-flex items-center gap-1.5 text-xs font-bold text-gray-700 bg-gray-100 px-2.5 py-1 rounded-md">
-                    {getCategoryIcon(item.category)}
-                    {item.category}
-                  </span>
-                  <span
-                    className={`text-xs font-bold px-2.5 py-1 rounded-full border ${item.statusBadgeColor}`}
-                  >
-                    {item.status}
-                  </span>
+          {MOCK_ISSUES.map((item) => {
+            const slug = getSlugByTitle(item.title);
+            return (
+              <div
+                key={item.id}
+                className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200/80 hover:shadow-xl hover:border-[#176B52]/40 transition-all duration-300 flex flex-col justify-between group"
+              >
+                <div>
+                  {/* Category & Status Badge Header */}
+                  <div className="flex items-center justify-between gap-2 mb-4">
+                    <span className="inline-flex items-center gap-1.5 text-xs font-bold text-gray-700 bg-gray-100 px-2.5 py-1 rounded-md">
+                      {getCategoryIcon(item.category)}
+                      {item.category}
+                    </span>
+                    <span
+                      className={`text-xs font-bold px-2.5 py-1 rounded-full border ${item.statusBadgeColor}`}
+                    >
+                      {item.status}
+                    </span>
+                  </div>
+
+                  {/* Card Title */}
+                  <h3 className="text-xl font-bold text-[#222222] group-hover:text-[#176B52] transition-colors leading-snug mb-3">
+                    {item.title}
+                  </h3>
+
+                  {/* Card Short Description */}
+                  <p className="text-[#666666] text-sm leading-relaxed line-clamp-3 mb-6">
+                    {item.description}
+                  </p>
                 </div>
 
-                {/* Card Title */}
-                <h3 className="text-xl font-bold text-[#222222] group-hover:text-[#176B52] transition-colors leading-snug mb-3">
-                  {item.title}
-                </h3>
-
-                {/* Card Short Description */}
-                <p className="text-[#666666] text-sm leading-relaxed line-clamp-3 mb-6">
-                  {item.description}
-                </p>
+                {/* Action / Learn More */}
+                <div className="pt-4 border-t border-gray-100">
+                  <Link
+                    href={`/issues/current/${slug}`}
+                    className="w-full flex items-center justify-between text-xs font-bold text-[#176B52] group-hover:text-[#0D4938]"
+                  >
+                    <span>자세히 보기</span>
+                    <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                  </Link>
+                </div>
               </div>
-
-              {/* Action / Learn More */}
-              <div className="pt-4 border-t border-gray-100 flex items-center justify-between text-xs font-bold text-[#176B52] group-hover:text-[#0D4938]">
-                <span>자세히 보기</span>
-                <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </section>
