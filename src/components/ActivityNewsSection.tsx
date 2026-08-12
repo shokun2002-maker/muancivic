@@ -25,40 +25,44 @@ export default function ActivityNewsSection() {
 
         {/* Content Layout: Featured (Left) + List (Right) */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
-          {/* Featured Large Card (Left - 7 cols) */}
-          <div className="lg:col-span-7 bg-gradient-to-br from-[#176B52] to-[#0D4938] rounded-3xl p-8 sm:p-10 text-white shadow-xl flex flex-col justify-between relative overflow-hidden group">
-            {/* Background Pattern Decoration */}
-            <div className="absolute right-0 bottom-0 opacity-10 translate-x-8 translate-y-8 pointer-events-none">
-              <Sparkles className="w-64 h-64 text-white" />
-            </div>
+          {/* Featured Large Card with Actual Inaugural Assembly Photo */}
+          <div className="lg:col-span-7 bg-[#0D4938] rounded-3xl p-8 sm:p-10 text-white shadow-xl flex flex-col justify-between relative overflow-hidden group min-h-[380px]">
+            {/* Real Background Photo Overlay */}
+            <div
+              className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-30 group-hover:opacity-40 group-hover:scale-105 transition-all duration-700"
+              style={{ backgroundImage: "url('/inaugural_assembly.jpg')" }}
+            />
 
-            <div>
+            {/* Gradient Mask for legibility */}
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0D4938] via-[#0D4938]/70 to-[#0D4938]/30" />
+
+            <div className="relative z-10">
               <div className="flex items-center gap-3 mb-6">
-                <span className="bg-[#F2B544] text-[#0D4938] text-xs font-extrabold px-3 py-1 rounded-full uppercase tracking-wider">
+                <span className="bg-[#F2B544] text-[#0D4938] text-xs font-extrabold px-3 py-1 rounded-full uppercase tracking-wider shadow">
                   대표 소식
                 </span>
-                <span className="flex items-center gap-1.5 text-xs text-emerald-100 font-medium">
+                <span className="flex items-center gap-1.5 text-xs text-emerald-100 font-medium bg-black/30 px-2.5 py-1 rounded-md backdrop-blur-xs">
                   <Calendar className="w-3.5 h-3.5" />
                   {FEATURED_ACTIVITY.date}
                 </span>
               </div>
 
-              <h3 className="text-2xl sm:text-4xl font-extrabold leading-tight mb-4 group-hover:text-[#F2B544] transition-colors">
+              <h3 className="text-2xl sm:text-4xl font-extrabold leading-tight mb-4 group-hover:text-[#F2B544] transition-colors drop-shadow-md">
                 {FEATURED_ACTIVITY.title}
               </h3>
 
-              <p className="text-emerald-100 text-sm sm:text-base leading-relaxed mb-8 font-light">
+              <p className="text-emerald-100 text-sm sm:text-base leading-relaxed mb-8 font-light drop-shadow">
                 {FEATURED_ACTIVITY.summary}
               </p>
             </div>
 
-            <div className="pt-6 border-t border-emerald-700/60 flex items-center justify-between">
+            <div className="relative z-10 pt-6 border-t border-white/20 flex items-center justify-between">
               <span className="text-xs font-semibold text-emerald-200">
-                무안 자치주권시대 공식 선언
+                무안 자치주권시대 공식 선언 현장
               </span>
               <Link
-                href="#activity-featured"
-                className="inline-flex items-center gap-2 px-4 py-2 bg-white text-[#0D4938] hover:bg-[#F2B544] hover:text-[#0D4938] font-bold text-xs sm:text-sm rounded-lg transition-all duration-200"
+                href="/about/declaration"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-white text-[#0D4938] hover:bg-[#F2B544] hover:text-[#0D4938] font-bold text-xs sm:text-sm rounded-lg transition-all duration-200 shadow"
               >
                 <span>소식 전문 보기</span>
                 <ArrowRight className="w-4 h-4" />
@@ -94,10 +98,10 @@ export default function ActivityNewsSection() {
             </div>
 
             <Link
-              href="#activity-news-all"
-              className="w-full py-3.5 px-4 bg-[#F7F7F3] hover:bg-[#176B52]/10 border border-gray-200 text-[#176B52] font-bold text-sm rounded-xl flex items-center justify-center gap-2 transition-colors"
+              href="/about/history"
+              className="w-full py-3.5 px-4 bg-[#F7F7F3] hover:bg-[#176B52]/10 border border-gray-200 text-[#176B52] font-bold text-sm rounded-xl flex items-center justify-center gap-2 transition-colors text-center"
             >
-              <span>활동소식 더보기</span>
+              <span>전체 발자취 보기</span>
               <ChevronRight className="w-4 h-4" />
             </Link>
           </div>
