@@ -1,8 +1,7 @@
-"use client";
-
 import React from "react";
 import Link from "next/link";
-import { notFound, useParams } from "next/navigation";
+import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import SubHero from "@/components/SubHero";
 import CategoryBadge from "@/components/CategoryBadge";
 import ShareButtons from "@/components/ShareButtons";
@@ -10,55 +9,35 @@ import { getPublishedPostBySlug, getLatestNotices } from "@/lib/data/posts";
 import type { NoticePost } from "@/data/notices";
 import { ChevronLeft, Calendar, Eye, FileText, Download, ChevronRight } from "lucide-react";
 
+interface Props {
+  params: Promise<{ slug: string }>;
+}
 
-
-export default function NoticeDetailPage() {
-  const routeParams = useParams<{ slug: string }>();
-  const slug = routeParams?.slug;
-  const [notice, setNotice] = React.useState<NoticePost | null>(null);
-  const [notices, setNotices] = React.useState<NoticePost[]>([]);
-  const [loading, setLoading] = React.useState(true);
-  const [error, setError] = React.useState<string | null>(null);
-
-  React.useEffect(() => {
-    async function fetchData() {
-      // Validate slug
-      if (!slug || typeof slug !== "string") {
-        setError("잘못된 게시글 주소입니다.");
-        setLoading(false);
-        return;
-      }
-      try {
-        const post = await getPublishedPostBySlug("notice", slug) as NoticePost;
-        const list = await getLatestNotices();
-        setNotice(post);
-        setNotices(list);
-        if (!post) {
-          notFound();
-        }
-      } catch (e) {
-        console.error("Error loading notice:", e);
-        setError("게시글을 불러오는 중 오류가 발생했습니다.");
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchData();
-  }, [slug]);
-
-  if (loading) {
-    return <p className="text-gray-500">Loading...</p>;
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  const notice = (await getPublishedPostBySlug("notice", slug)) as NoticePost | null;
+  if (!notice) {
+    return { title: "공지사항을 찾을 수 없습니다" };
   }
+  return {
+    title: notice.title,
+    description: notice.content?.[0] || "무안 자치주권시민연대 공지사항",
+    openGraph: {
+      title: notice.title,
+      description: notice.content?.[0] || "무안 자치주권시민연대 공지사항",
+    },
+  };
+}
 
-  if (error) {
-    return <p className="text-red-600">{error}</p>;
-  }
+export default async function NoticeDetailPage({ params }: Props) {
+  const { slug } = await params;
+  const notice = (await getPublishedPostBySlug("notice", slug)) as NoticePost | null;
 
   if (!notice) {
     notFound();
-    return null;
   }
 
+  const notices = await getLatestNotices();
   const currentIndex = notices.findIndex((n) => n.slug === slug);
   const prevNotice = currentIndex < notices.length - 1 ? notices[currentIndex + 1] : null;
   const nextNotice = currentIndex > 0 ? notices[currentIndex - 1] : null;
@@ -132,14 +111,9 @@ export default function NoticeDetailPage() {
                       <span>{file.title}</span>
                       <span className="text-gray-400 font-normal">({file.size})</span>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => alert("샘플 파일 다운로드 시연입니다.")}
-                      className="px-3 py-1.5 bg-[#176B52]/10 hover:bg-[#176B52] text-[#176B52] hover:text-white font-bold text-xs rounded-lg transition-colors flex items-center gap-1"
-                    >
-                      <Download className="w-3.5 h-3.5" />
-                      <span>다운로드</span>
-                    </button>
+                    <span className="px-3 py-1 bg-[#176B52]/10 text-[#176B52] font-bold text-xs rounded-lg">
+                      첨부문서
+                    </span>
                   </div>
                 ))}
               </div>

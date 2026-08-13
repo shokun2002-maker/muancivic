@@ -1,61 +1,41 @@
-"use client";
-
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useParams, notFound } from "next/navigation";
+import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import SubHero from "@/components/SubHero";
 import CategoryBadge from "@/components/CategoryBadge";
 import ShareButtons from "@/components/ShareButtons";
-import { ActivityPost } from "@/data/activities";
-
+import { getActivityBySlug } from "@/lib/data/posts";
 import { ChevronLeft, Calendar, AlertCircle } from "lucide-react";
 
+interface Props {
+  params: Promise<{ slug: string }>;
+}
 
-
-export default function ActivityDetailPage() {
-  const routeParams = useParams<{ slug: string }>();
-  const slug = routeParams?.slug;
-  const [post, setPost] = React.useState<ActivityPost | null>(null);
-  const [loading, setLoading] = React.useState(true);
-  const [error, setError] = React.useState<string | null>(null);
-
-  React.useEffect(() => {
-    async function fetchPost() {
-      // Validate slug
-      if (!slug || typeof slug !== "string") {
-        setError("잘못된 게시글 주소입니다.");
-        setLoading(false);
-        return;
-      }
-      try {
-        const data = await import("@/lib/data/posts").then(m => m.getPublishedPostBySlug("activity", slug));
-        if (data) {
-          setPost(data as ActivityPost);
-        } else {
-          notFound();
-        }
-      } catch (e) {
-        console.error("Error loading activity post:", e);
-        setError("게시글을 불러오는 중 오류가 발생했습니다.");
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchPost();
-  }, [slug]);
-
-  if (loading) {
-    return <p className="text-gray-500">Loading...</p>;
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  const post = await getActivityBySlug(slug);
+  if (!post) {
+    return { title: "활동소식을 찾을 수 없습니다" };
   }
+  return {
+    title: post.title,
+    description: post.summary || "무안 자치주권시민연대 활동소식",
+    openGraph: {
+      title: post.title,
+      description: post.summary || "무안 자치주권시민연대 활동소식",
+      images: post.coverImage ? [{ url: post.coverImage }] : [],
+    },
+  };
+}
 
-  if (error) {
-    return <p className="text-red-600">{error}</p>;
-  }
+export default async function ActivityDetailPage({ params }: Props) {
+  const { slug } = await params;
+  const post = await getActivityBySlug(slug);
 
   if (!post) {
     notFound();
-    return null;
   }
 
   return (

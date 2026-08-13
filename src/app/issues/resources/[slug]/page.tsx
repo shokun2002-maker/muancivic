@@ -1,50 +1,39 @@
-"use client";
-
-import React, { use, useState, useEffect } from "react";
+import React from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import SubHero from "@/components/SubHero";
 import CategoryBadge from "@/components/CategoryBadge";
 import ShareButtons from "@/components/ShareButtons";
 import { getPublishedResourceBySlug } from "@/lib/data/resources";
-import { PolicyResource } from "@/data/resources";
-import { ChevronLeft, Calendar, Building2, Download, FileText, BookOpen, Loader2 } from "lucide-react";
+import { ChevronLeft, Calendar, Building2, Download, FileText, BookOpen } from "lucide-react";
 
 interface Props {
   params: Promise<{ slug: string }>;
 }
 
-export default function ResourceDetailPage({ params }: Props) {
-  const { slug } = use(params);
-  const [resource, setResource] = useState<PolicyResource | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [notFoundTriggered, setNotFoundTriggered] = useState(false);
-
-  useEffect(() => {
-    async function loadData() {
-      setLoading(true);
-      const data = await getPublishedResourceBySlug(slug);
-      if (!data) {
-        setNotFoundTriggered(true);
-      } else {
-        setResource(data);
-      }
-      setLoading(false);
-    }
-    loadData();
-  }, [slug]);
-
-  if (notFoundTriggered) {
-    notFound();
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  const resource = await getPublishedResourceBySlug(slug);
+  if (!resource) {
+    return { title: "정책자료를 찾을 수 없습니다" };
   }
+  return {
+    title: resource.title,
+    description: resource.description || "무안 자치주권시민연대 정책자료",
+    openGraph: {
+      title: resource.title,
+      description: resource.description || "무안 자치주권시민연대 정책자료",
+    },
+  };
+}
 
-  if (loading || !resource) {
-    return (
-      <div className="flex flex-col items-center justify-center py-32 min-h-[60vh]">
-        <Loader2 className="w-8 h-8 text-[#176B52] animate-spin mb-2" />
-        <p className="text-xs font-bold text-gray-500">정책자료를 읽어오고 있습니다...</p>
-      </div>
-    );
+export default async function ResourceDetailPage({ params }: Props) {
+  const { slug } = await params;
+  const resource = await getPublishedResourceBySlug(slug);
+
+  if (!resource) {
+    notFound();
   }
 
   return (
@@ -132,10 +121,6 @@ export default function ResourceDetailPage({ params }: Props) {
 
           <a
             href="#download"
-            onClick={(e) => {
-              e.preventDefault();
-              alert(`'${resource.title}' 샘플 PDF 자료 다운로드 시연입니다.`);
-            }}
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#176B52] hover:bg-[#0D4938] text-white font-bold text-sm rounded-xl shadow transition-colors"
           >
             <Download className="w-4 h-4" />

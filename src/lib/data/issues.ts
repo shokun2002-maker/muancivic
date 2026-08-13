@@ -1,11 +1,11 @@
 import { createClient } from "@/lib/supabase/client";
-import { ISSUES_DATA, IssueArticle } from "@/data/issues";
+import { IssueArticle } from "@/data/issues";
 
 export async function getPublishedIssues(): Promise<IssueArticle[]> {
   try {
     const supabase = createClient();
     if (!supabase) {
-      return ISSUES_DATA;
+      return [];
     }
 
     const { data, error } = await supabase
@@ -15,11 +15,12 @@ export async function getPublishedIssues(): Promise<IssueArticle[]> {
         issue_principles (*),
         issue_updates (*)
       `)
+      .eq("status", "published")
       .order("created_at", { ascending: false });
 
-    if (error || !data || data.length === 0) {
-      if (error) console.warn("[Supabase] getPublishedIssues query notice:", error.message);
-      return ISSUES_DATA;
+    if (error || !data) {
+      if (error) console.warn("[Supabase] getPublishedIssues error:", error.message);
+      return [];
     }
 
     return data.map((item: any) => ({
@@ -46,8 +47,8 @@ export async function getPublishedIssues(): Promise<IssueArticle[]> {
         : [],
     }));
   } catch (err) {
-    console.warn("[Supabase] getPublishedIssues fallback executed:", err);
-    return ISSUES_DATA;
+    console.warn("[Supabase] getPublishedIssues error:", err);
+    return [];
   }
 }
 
@@ -55,10 +56,8 @@ export async function getIssueBySlug(slug: string): Promise<IssueArticle | null>
   try {
     const issues = await getPublishedIssues();
     const found = issues.find((i) => i.slug === slug);
-    if (found) return found;
-
-    return ISSUES_DATA.find((i) => i.slug === slug) || null;
+    return found || null;
   } catch {
-    return ISSUES_DATA.find((i) => i.slug === slug) || null;
+    return null;
   }
 }

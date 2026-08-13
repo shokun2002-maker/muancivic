@@ -1,8 +1,7 @@
-"use client";
-
 import React from "react";
 import Link from "next/link";
-import { notFound, useParams } from "next/navigation";
+import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import SubHero from "@/components/SubHero";
 import CategoryBadge from "@/components/CategoryBadge";
 import ShareButtons from "@/components/ShareButtons";
@@ -10,55 +9,35 @@ import { getPublishedPostBySlug, getLatestStatements } from "@/lib/data/posts";
 import type { StatementPost } from "@/data/statements";
 import { ChevronLeft, Calendar, FileText, Download, AlertCircle } from "lucide-react";
 
+interface Props {
+  params: Promise<{ slug: string }>;
+}
 
-
-export default function StatementDetailPage() {
-  const routeParams = useParams<{ slug: string }>();
-  const slug = routeParams?.slug;
-  const [statement, setStatement] = React.useState<StatementPost | null>(null);
-  const [statements, setStatements] = React.useState<StatementPost[]>([]);
-  const [loading, setLoading] = React.useState(true);
-  const [error, setError] = React.useState<string | null>(null);
-
-  React.useEffect(() => {
-    async function fetchData() {
-      // Validate slug
-      if (!slug || typeof slug !== "string") {
-        setError("잘못된 게시글 주소입니다.");
-        setLoading(false);
-        return;
-      }
-      try {
-        const post = await getPublishedPostBySlug("statement", slug) as StatementPost;
-        const list = await getLatestStatements();
-        setStatement(post);
-        setStatements(list);
-        if (!post) {
-          notFound();
-        }
-      } catch (e) {
-        console.error("Error loading statement:", e);
-        setError("게시글을 불러오는 중 오류가 발생했습니다.");
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchData();
-  }, [slug]);
-
-  if (loading) {
-    return <p className="text-gray-500">Loading...</p>;
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  const statement = (await getPublishedPostBySlug("statement", slug)) as StatementPost | null;
+  if (!statement) {
+    return { title: "성명·논평을 찾을 수 없습니다" };
   }
+  return {
+    title: statement.title,
+    description: statement.summary || "무안 자치주권시민연대 성명·논평",
+    openGraph: {
+      title: statement.title,
+      description: statement.summary || "무안 자치주권시민연대 성명·논평",
+    },
+  };
+}
 
-  if (error) {
-    return <p className="text-red-600">{error}</p>;
-  }
+export default async function StatementDetailPage({ params }: Props) {
+  const { slug } = await params;
+  const statement = (await getPublishedPostBySlug("statement", slug)) as StatementPost | null;
 
   if (!statement) {
     notFound();
-    return null;
   }
 
+  const statements = await getLatestStatements();
   const currentIndex = statements.findIndex((s) => s.slug === slug);
   const prevStatement = currentIndex < statements.length - 1 ? statements[currentIndex + 1] : null;
   const nextStatement = currentIndex > 0 ? statements[currentIndex - 1] : null;
@@ -88,18 +67,20 @@ export default function StatementDetailPage() {
           <span>성명·논평 목록으로 돌아가기</span>
         </Link>
 
-        {/* Disclaimer Notice Banner */}
-        <div className="bg-amber-50 border border-amber-200 p-4 rounded-2xl mb-8 flex items-center justify-between text-xs font-bold text-amber-800">
-          <div className="flex items-center gap-2.5">
-            <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
-            <span>
-              안내: 본 성명·논평은 홈페이지 시연용 예시 콘텐츠이며 실제 공식 성명이 아닙니다.
+        {/* Disclaimer Notice Banner if sample */}
+        {statement.isSampleDisclaimer && (
+          <div className="bg-amber-50 border border-amber-200 p-4 rounded-2xl mb-8 flex items-center justify-between text-xs font-bold text-amber-800">
+            <div className="flex items-center gap-2.5">
+              <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
+              <span>
+                안내: 본 성명·논평은 홈페이지 시연용 예시 콘텐츠이며 실제 공식 성명이 아닙니다.
+              </span>
+            </div>
+            <span className="bg-amber-200/80 text-amber-900 px-2 py-0.5 rounded text-[10px]">
+              시연용 예시
             </span>
           </div>
-          <span className="bg-amber-200/80 text-amber-900 px-2 py-0.5 rounded text-[10px]">
-            시연용 예시
-          </span>
-        </div>
+        )}
 
         {/* Header Card */}
         <div className="bg-white rounded-3xl p-8 sm:p-10 border border-gray-200/80 shadow-sm mb-10">
@@ -115,9 +96,11 @@ export default function StatementDetailPage() {
             {statement.title}
           </h1>
 
-          <div className="p-4 bg-[#F7F7F3] rounded-2xl border border-gray-200/60 text-sm font-bold text-[#176B52] mb-8">
-            {statement.summary}
-          </div>
+          {statement.summary && (
+            <div className="p-4 bg-[#F7F7F3] rounded-2xl border border-gray-200/60 text-sm font-bold text-[#176B52] mb-8">
+              {statement.summary}
+            </div>
+          )}
 
           {/* Body Content */}
           <div className="space-y-4 text-base sm:text-lg text-[#333333] leading-relaxed border-t border-gray-100 pt-6">
@@ -143,14 +126,9 @@ export default function StatementDetailPage() {
                       <span>{file.title}</span>
                       <span className="text-gray-400 font-normal">({file.size})</span>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => alert("샘플 성명서 파일 다운로드 시연입니다.")}
-                      className="px-3 py-1.5 bg-[#176B52]/10 hover:bg-[#176B52] text-[#176B52] hover:text-white font-bold text-xs rounded-lg transition-colors flex items-center gap-1"
-                    >
-                      <Download className="w-3.5 h-3.5" />
-                      <span>다운로드</span>
-                    </button>
+                    <span className="px-3 py-1 bg-[#176B52]/10 text-[#176B52] font-bold text-xs rounded-lg">
+                      첨부문서
+                    </span>
                   </div>
                 ))}
               </div>
