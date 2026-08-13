@@ -1,27 +1,19 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
-import { getPublishedVoices } from "@/lib/data/voices";
 import { CitizenVoice } from "@/data/voices";
-import { ThumbsUp, MessageSquarePlus, MessageSquare, Tag, ChevronRight, Loader2 } from "lucide-react";
+import { ThumbsUp, MessageSquarePlus, MessageSquare, Tag, ChevronRight, Info } from "lucide-react";
 import VoiceFormModal from "./VoiceFormModal";
 
-export default function CitizenVoiceSection() {
-  const [voices, setVoices] = useState<CitizenVoice[]>([]);
-  const [loading, setLoading] = useState(true);
+interface Props {
+  voices: CitizenVoice[];
+}
+
+export default function CitizenVoiceSection({ voices: initialVoices }: Props) {
+  const [voices, setVoices] = useState<CitizenVoice[]>(initialVoices.slice(0, 3));
   const [likedMap, setLikedMap] = useState<Record<string, boolean>>({});
   const [modalOpen, setModalOpen] = useState(false);
-
-  useEffect(() => {
-    async function loadData() {
-      setLoading(true);
-      const data = await getPublishedVoices();
-      setVoices(data.slice(0, 3));
-      setLoading(false);
-    }
-    loadData();
-  }, []);
 
   const handleLike = (id: string, e: React.MouseEvent) => {
     e.preventDefault();
@@ -62,81 +54,94 @@ export default function CitizenVoiceSection() {
           </div>
 
           <div className="mt-4 md:mt-0 flex items-center gap-3">
-            <Link
-              href="/issues/voices"
-              className="inline-flex items-center gap-1 text-sm font-bold text-[#176B52] hover:text-[#0D4938]"
-            >
-              <span>전체 제안 보기</span>
-              <ChevronRight className="w-4 h-4" />
-            </Link>
-
             <button
               type="button"
               onClick={() => setModalOpen(true)}
-              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#176B52] hover:bg-[#0D4938] text-white font-bold text-xs sm:text-sm rounded-xl shadow hover:shadow-md transition-all active:scale-[0.98]"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-[#176B52] hover:bg-[#0D4938] text-white font-bold text-xs sm:text-sm rounded-xl shadow transition-colors"
             >
               <MessageSquarePlus className="w-4 h-4" />
-              <span>내 목소리 남기기</span>
+              <span>의견 제안하기</span>
             </button>
+            <Link
+              href="/issues/voices"
+              className="inline-flex items-center gap-1.5 text-sm font-bold text-[#176B52] hover:text-[#0D4938] group"
+            >
+              <span>전체보기</span>
+              <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+            </Link>
           </div>
         </div>
 
-        {/* Proposals Cards Grid */}
-        {loading ? (
-          <div className="flex flex-col items-center justify-center py-16">
-            <Loader2 className="w-6 h-6 text-[#176B52] animate-spin mb-2" />
-            <p className="text-xs text-gray-500 font-medium">시민의 목소리를 불러오는 중...</p>
-          </div>
-        ) : voices.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
-            {voices.map((item) => (
-              <div
-                key={item.id}
-                className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200/80 hover:shadow-lg transition-all duration-200 flex flex-col justify-between"
-              >
-                <div>
-                  <div className="flex items-center justify-between gap-2 mb-3">
-                    <span className="inline-flex items-center gap-1 text-xs font-bold text-[#2878A7] bg-[#2878A7]/10 px-2.5 py-1 rounded-md">
-                      <Tag className="w-3 h-3" />
-                      분류: {item.category}
-                    </span>
-                    <span className="text-xs text-[#666666] font-medium">{item.date}</span>
-                  </div>
-
-                  <Link href={`/issues/voices/${item.slug}`}>
-                    <h3 className="text-lg font-bold text-[#222222] hover:text-[#176B52] transition-colors leading-snug mb-4 line-clamp-3">
-                      "{item.title}"
-                    </h3>
-                  </Link>
-                </div>
-
-                <div className="pt-4 border-t border-gray-100 flex items-center justify-between text-xs text-[#666666]">
-                  <span className="font-medium">{item.author}</span>
-
-                  <button
-                    type="button"
-                    onClick={(e) => handleLike(item.id, e)}
-                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full font-bold transition-all ${
-                      likedMap[item.id]
-                        ? "bg-red-50 text-red-600 border border-red-200"
-                        : "bg-gray-100 hover:bg-gray-200 text-gray-700"
-                    }`}
-                  >
-                    <ThumbsUp className={`w-3.5 h-3.5 ${likedMap[item.id] ? "fill-red-600" : ""}`} />
-                    <span>공감 {item.likesCount}</span>
-                  </button>
-                </div>
-              </div>
-            ))}
+        {/* Empty State */}
+        {voices.length === 0 ? (
+          <div className="bg-white rounded-3xl p-12 text-center border border-gray-200 shadow-sm max-w-xl mx-auto space-y-3">
+            <Info className="w-10 h-10 text-gray-400 mx-auto" />
+            <h3 className="text-lg font-extrabold text-gray-900">
+              등록된 시민의 목소리가 없습니다.
+            </h3>
+            <p className="text-xs text-gray-500">
+              무안의 발전을 위한 시민 여러분의 의견과 제안을 남겨주세요.
+            </p>
           </div>
         ) : (
-          <div className="text-center py-12 bg-white rounded-2xl border border-gray-200 text-gray-500 text-sm">
-            등록된 시민 제안이 없습니다.
+          /* Cards Grid */
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+            {voices.map((v) => {
+              const isLiked = likedMap[v.id];
+              return (
+                <div
+                  key={v.id}
+                  className="bg-white rounded-3xl p-8 border border-gray-200/80 shadow-sm hover:shadow-xl hover:border-[#176B52]/40 transition-all duration-300 flex flex-col justify-between group"
+                >
+                  <div>
+                    <div className="flex items-center justify-between gap-2 mb-4">
+                      <span className="inline-flex items-center gap-1 text-xs font-bold text-[#176B52] bg-[#176B52]/10 px-3 py-1 rounded-full">
+                        <Tag className="w-3 h-3" />
+                        {v.category}
+                      </span>
+                      <span className="text-xs font-bold px-2.5 py-1 rounded-full border bg-blue-50 text-blue-700 border-blue-200">
+                        {v.status}
+                      </span>
+                    </div>
+
+                    <h3 className="text-xl font-bold text-[#222222] group-hover:text-[#176B52] transition-colors leading-snug mb-3 line-clamp-2">
+                      {v.title}
+                    </h3>
+
+                    <p className="text-xs text-[#666666] leading-relaxed line-clamp-3 mb-6">
+                      {v.content}
+                    </p>
+                  </div>
+
+                  <div className="pt-4 border-t border-gray-100 flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-xs text-gray-400 font-medium">
+                      <span>{v.author}</span>
+                      <span>•</span>
+                      <span>{v.date}</span>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={(e) => handleLike(v.id, e)}
+                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                        isLiked
+                          ? "bg-rose-50 text-rose-600 border border-rose-200 shadow-sm"
+                          : "bg-gray-50 hover:bg-gray-100 text-gray-600 border border-gray-200"
+                      }`}
+                    >
+                      <ThumbsUp className={`w-3.5 h-3.5 ${isLiked ? "fill-rose-600" : ""}`} />
+                      <span>{v.likesCount}</span>
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         )}
-      </div>
 
-      <VoiceFormModal isOpen={modalOpen} onClose={() => setModalOpen(false)} />
+        {/* Proposal Form Modal */}
+        <VoiceFormModal isOpen={modalOpen} onClose={() => setModalOpen(false)} />
+      </div>
     </section>
   );
 }

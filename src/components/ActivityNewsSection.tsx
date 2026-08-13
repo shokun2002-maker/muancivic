@@ -1,26 +1,14 @@
-"use client";
-
-import React, { useState, useEffect } from "react";
+import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { getLatestActivities } from "@/lib/data/posts";
 import { ActivityPost } from "@/data/activities";
-import { Sparkles, Calendar, ArrowRight, ChevronRight, Loader2 } from "lucide-react";
+import { Sparkles, Calendar, ArrowRight, ChevronRight, Info } from "lucide-react";
 
-export default function ActivityNewsSection() {
-  const [activities, setActivities] = useState<ActivityPost[]>([]);
-  const [loading, setLoading] = useState(true);
+interface Props {
+  activities: ActivityPost[];
+}
 
-  useEffect(() => {
-    async function loadData() {
-      setLoading(true);
-      const data = await getLatestActivities();
-      setActivities(data);
-      setLoading(false);
-    }
-    loadData();
-  }, []);
-
+export default function ActivityNewsSection({ activities }: Props) {
   const featuredPost = activities.find((a) => a.isFeatured) || activities[0];
   const sidePosts = activities.filter((a) => a.id !== featuredPost?.id).slice(0, 2);
 
@@ -51,10 +39,16 @@ export default function ActivityNewsSection() {
           </Link>
         </div>
 
-        {loading ? (
-          <div className="flex flex-col items-center justify-center py-16">
-            <Loader2 className="w-8 h-8 text-[#176B52] animate-spin mb-2" />
-            <p className="text-xs font-bold text-gray-500">활동 소식을 읽어오고 있습니다...</p>
+        {/* Empty State */}
+        {activities.length === 0 ? (
+          <div className="bg-[#F7F7F3] rounded-3xl p-12 text-center border border-gray-200 shadow-sm max-w-xl mx-auto space-y-3">
+            <Info className="w-10 h-10 text-gray-400 mx-auto" />
+            <h3 className="text-lg font-extrabold text-gray-900">
+              등록된 활동 소식이 없습니다.
+            </h3>
+            <p className="text-xs text-gray-500">
+              새로운 시민연대 활동 소식이 등록되면 본 영역에 공지됩니다.
+            </p>
           </div>
         ) : (
           /* Grid Layout */
@@ -67,11 +61,12 @@ export default function ActivityNewsSection() {
                     src={featuredPost.coverImage}
                     alt={featuredPost.title}
                     fill
+                    sizes="(max-width: 1024px) 100vw, 58vw"
                     className="object-cover group-hover:scale-105 transition-transform duration-700"
                     priority
                   />
                   <div className="absolute top-4 left-4 bg-[#F2B544] text-[#0D4938] text-xs font-extrabold px-3 py-1 rounded-full uppercase tracking-wider shadow">
-                    대표 대표소식
+                    대표 소식
                   </div>
                 </div>
 

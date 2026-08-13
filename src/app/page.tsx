@@ -9,23 +9,37 @@ import JoinUsSection from "@/components/JoinUsSection";
 import GallerySection from "@/components/GallerySection";
 import FinalMessageSection from "@/components/FinalMessageSection";
 
-export default function Home() {
+import { getPublishedIssues } from "@/lib/data/issues";
+import { getLatestActivities } from "@/lib/data/posts";
+import { getPublishedVoices } from "@/lib/data/voices";
+import { getPublishedMonitoringPosts } from "@/lib/data/monitoring";
+import { getPublishedMedia } from "@/lib/data/media";
+
+export default async function Home() {
+  const [issues, activities, voices, monitoringPosts, mediaAlbums] = await Promise.all([
+    getPublishedIssues(),
+    getLatestActivities(),
+    getPublishedVoices(),
+    getPublishedMonitoringPosts(),
+    getPublishedMedia(),
+  ]);
+
   return (
     <div className="flex flex-col min-h-screen">
       {/* SECTION 01: HERO */}
       <HeroSection />
 
       {/* SECTION 02: 지금 무안에서는 (주요 현안 4개 카드) */}
-      <IssueCardsSection />
+      <IssueCardsSection issues={issues} />
 
       {/* SECTION 03: 시민이 움직이면 무안이 달라집니다 (활동소식) */}
-      <ActivityNewsSection />
+      <ActivityNewsSection activities={activities} />
 
       {/* SECTION 04: 시민의 목소리 (시민제안 카드) */}
-      <CitizenVoiceSection />
+      <CitizenVoiceSection voices={voices} />
 
       {/* SECTION 05: 시민연대가 바라보는 무안 (모니터링) */}
-      <MonitoringSection />
+      <MonitoringSection posts={monitoringPosts} />
 
       {/* SECTION 06: 우리의 시작 (타임라인) */}
       <TimelineSection />
@@ -37,7 +51,7 @@ export default function Home() {
       <JoinUsSection />
 
       {/* SECTION 09: 시민연대 현장 (갤러리) */}
-      <GallerySection />
+      <GallerySection albums={mediaAlbums} />
 
       {/* SECTION 10: 마지막 메시지 영역 */}
       <FinalMessageSection />

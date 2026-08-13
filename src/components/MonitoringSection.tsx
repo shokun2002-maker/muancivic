@@ -1,30 +1,23 @@
-"use client";
-
 import React from "react";
 import Link from "next/link";
-import { MONITORING_CARDS } from "@/data/mockData";
-import { Eye, FileCheck, ArrowRight, PieChart, LandPlot, Scale } from "lucide-react";
+import { MonitoringPost } from "@/data/monitoring";
+import { Eye, FileCheck, ArrowRight, PieChart, LandPlot, Scale, Info } from "lucide-react";
 
-export default function MonitoringSection() {
+interface Props {
+  posts: MonitoringPost[];
+}
+
+export default function MonitoringSection({ posts }: Props) {
+  const displayPosts = posts.slice(0, 3);
+
   const getCardIcon = (index: number) => {
-    switch (index) {
+    switch (index % 3) {
       case 0:
         return <LandPlot className="w-6 h-6 text-[#176B52]" />;
       case 1:
         return <Scale className="w-6 h-6 text-[#2878A7]" />;
       default:
         return <PieChart className="w-6 h-6 text-[#F2B544]" />;
-    }
-  };
-
-  const getSlugByIndex = (index: number) => {
-    switch (index) {
-      case 0:
-        return "2026-policy";
-      case 1:
-        return "council-monitoring";
-      default:
-        return "budget-analysis";
     }
   };
 
@@ -45,11 +38,21 @@ export default function MonitoringSection() {
           </p>
         </div>
 
-        {/* 3 Monitoring Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
-          {MONITORING_CARDS.map((card, idx) => {
-            const slug = getSlugByIndex(idx);
-            return (
+        {/* Empty State */}
+        {displayPosts.length === 0 ? (
+          <div className="bg-[#F7F7F3] rounded-3xl p-12 text-center border border-gray-200 shadow-sm max-w-xl mx-auto space-y-3">
+            <Info className="w-10 h-10 text-gray-400 mx-auto" />
+            <h3 className="text-lg font-extrabold text-gray-900">
+              등록된 모니터링 리포트가 없습니다.
+            </h3>
+            <p className="text-xs text-gray-500">
+              무안군정 및 예산 감시 리포트가 발표되는 대로 게시됩니다.
+            </p>
+          </div>
+        ) : (
+          /* 3 Monitoring Cards Grid */
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+            {displayPosts.map((card, idx) => (
               <div
                 key={card.id}
                 className="bg-[#F7F7F3] rounded-3xl p-8 border border-gray-200/80 hover:bg-white hover:shadow-xl hover:border-[#176B52]/40 transition-all duration-300 flex flex-col justify-between group"
@@ -60,7 +63,7 @@ export default function MonitoringSection() {
                       {getCardIcon(idx)}
                     </div>
                     <span className="text-xs font-bold px-3 py-1 bg-[#176B52]/10 text-[#176B52] rounded-full">
-                      {card.tag}
+                      {card.category}
                     </span>
                   </div>
 
@@ -68,14 +71,14 @@ export default function MonitoringSection() {
                     {card.title}
                   </h3>
 
-                  <p className="text-[#666666] text-sm leading-relaxed mb-6">
-                    {card.description}
+                  <p className="text-[#666666] text-sm leading-relaxed mb-6 line-clamp-3">
+                    {card.summary}
                   </p>
                 </div>
 
                 <div className="pt-4 border-t border-gray-200/60">
                   <Link
-                    href={`/issues/monitoring/${slug}`}
+                    href={`/issues/monitoring/${card.slug}`}
                     className="inline-flex items-center gap-1.5 text-xs font-bold text-[#176B52] group-hover:text-[#0D4938]"
                   >
                     <FileCheck className="w-4 h-4" />
@@ -84,9 +87,9 @@ export default function MonitoringSection() {
                   </Link>
                 </div>
               </div>
-            );
-          })}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );

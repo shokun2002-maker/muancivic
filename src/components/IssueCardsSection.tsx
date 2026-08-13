@@ -1,32 +1,13 @@
-"use client";
-
-import React, { useState, useEffect } from "react";
+import React from "react";
 import Link from "next/link";
-import { getPublishedIssues } from "@/lib/data/issues";
 import { IssueArticle } from "@/data/issues";
-import { ChevronRight, AlertCircle, ShieldCheck, Activity, Compass, Loader2 } from "lucide-react";
+import { ChevronRight, AlertCircle, ShieldCheck, Activity, Compass, Info } from "lucide-react";
 
-export default function IssueCardsSection() {
-  const [issues, setIssues] = useState<IssueArticle[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+interface Props {
+  issues: IssueArticle[];
+}
 
-  useEffect(() => {
-    async function loadData() {
-      try {
-        setLoading(true);
-        const data = await getPublishedIssues();
-        setIssues(data);
-      } catch (err: any) {
-        console.error("IssueCardsSection fetch error:", err);
-        setError("현안 데이터를 불러오는 도중 오류가 발생했습니다.");
-      } finally {
-        setLoading(false);
-      }
-    }
-    loadData();
-  }, []);
-
+export default function IssueCardsSection({ issues }: Props) {
   const getCategoryIcon = (category: string) => {
     switch (category) {
       case "군정 · 안보":
@@ -39,6 +20,8 @@ export default function IssueCardsSection() {
         return <Compass className="w-4 h-4 text-emerald-600" />;
     }
   };
+
+  const displayList = issues.slice(0, 4);
 
   return (
     <section id="issues" className="py-16 sm:py-24 bg-[#F7F7F3]">
@@ -66,25 +49,21 @@ export default function IssueCardsSection() {
           </Link>
         </div>
 
-        {/* Loading State */}
-        {loading && (
-          <div className="flex flex-col items-center justify-center py-16 space-y-3">
-            <Loader2 className="w-8 h-8 text-[#176B52] animate-spin" />
-            <p className="text-xs font-bold text-gray-500">주요 현안 데이터를 불러오는 중...</p>
+        {/* Empty State */}
+        {displayList.length === 0 ? (
+          <div className="bg-white rounded-3xl p-12 text-center border border-gray-200 shadow-sm max-w-xl mx-auto space-y-3">
+            <Info className="w-10 h-10 text-gray-400 mx-auto" />
+            <h3 className="text-lg font-extrabold text-gray-900">
+              등록된 주요 현안이 없습니다.
+            </h3>
+            <p className="text-xs text-gray-500">
+              새로운 현안 이슈가 발굴되면 본 영역에 게시됩니다.
+            </p>
           </div>
-        )}
-
-        {/* Error State */}
-        {!loading && error && (
-          <div className="bg-red-50 border border-red-200 p-6 rounded-2xl text-center text-xs font-bold text-red-600">
-            {error}
-          </div>
-        )}
-
-        {/* 4 Issue Cards Grid */}
-        {!loading && !error && (
+        ) : (
+          /* 4 Issue Cards Grid */
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
-            {issues.slice(0, 4).map((item) => (
+            {displayList.map((item) => (
               <div
                 key={item.id}
                 className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200/80 hover:shadow-xl hover:border-[#176B52]/40 transition-all duration-300 flex flex-col justify-between group"

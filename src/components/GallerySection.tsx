@@ -1,25 +1,15 @@
-"use client";
-
-import React, { useState, useEffect } from "react";
+import React from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { getPublishedMedia } from "@/lib/data/media";
 import { MediaAlbum } from "@/data/media";
-import { Camera, Play, Calendar, ChevronRight, Loader2 } from "lucide-react";
+import { Camera, Play, Calendar, ChevronRight, Info } from "lucide-react";
 
-export default function GallerySection() {
-  const [mediaList, setMediaList] = useState<MediaAlbum[]>([]);
-  const [loading, setLoading] = useState(true);
+interface Props {
+  albums: MediaAlbum[];
+}
 
-  useEffect(() => {
-    async function loadData() {
-      setLoading(true);
-      const data = await getPublishedMedia();
-      setMediaList(data.slice(0, 4));
-      setLoading(false);
-    }
-    loadData();
-  }, []);
+export default function GallerySection({ albums }: Props) {
+  const mediaList = albums.slice(0, 4);
 
   return (
     <section id="gallery" className="py-16 sm:py-24 bg-white border-y border-gray-200/60">
@@ -48,13 +38,19 @@ export default function GallerySection() {
           </Link>
         </div>
 
-        {/* 4 Media Items Grid */}
-        {loading ? (
-          <div className="flex flex-col items-center justify-center py-16">
-            <Loader2 className="w-6 h-6 text-[#176B52] animate-spin mb-2" />
-            <p className="text-xs text-gray-500 font-medium">갤러리를 불러오는 중...</p>
+        {/* Empty State */}
+        {mediaList.length === 0 ? (
+          <div className="bg-[#F7F7F3] rounded-3xl p-12 text-center border border-gray-200 shadow-sm max-w-xl mx-auto space-y-3">
+            <Info className="w-10 h-10 text-gray-400 mx-auto" />
+            <h3 className="text-lg font-extrabold text-gray-900">
+              등록된 현장 미디어가 없습니다.
+            </h3>
+            <p className="text-xs text-gray-500">
+              시민연대 주요 소식 사진 및 영상이 등록되면 게시됩니다.
+            </p>
           </div>
-        ) : mediaList.length > 0 ? (
+        ) : (
+          /* 4 Media Items Grid */
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
             {mediaList.map((item) => (
               <div
@@ -67,6 +63,7 @@ export default function GallerySection() {
                     src={item.coverImage}
                     alt={item.title}
                     fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                     className="object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                   <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors" />
@@ -99,10 +96,6 @@ export default function GallerySection() {
                 </div>
               </div>
             ))}
-          </div>
-        ) : (
-          <div className="text-center py-12 bg-white rounded-2xl border border-gray-200 text-gray-500 text-sm">
-            등록된 갤러리 미디어가 없습니다.
           </div>
         )}
       </div>

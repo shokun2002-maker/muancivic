@@ -29,7 +29,7 @@ export default function FinalMessageSection() {
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <Link
-            href="#join"
+            href="/join"
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 bg-white hover:bg-[#F2B544] text-[#0D4938] font-extrabold text-base rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
           >
             <span>지금 시민참여 시작하기</span>

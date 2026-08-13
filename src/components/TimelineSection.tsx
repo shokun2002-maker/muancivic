@@ -25,7 +25,7 @@ export default function TimelineSection() {
           </div>
 
           <Link
-            href="#history-full"
+            href="/about/history"
             className="mt-4 md:mt-0 inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-200 hover:border-[#176B52] text-[#176B52] font-bold text-sm rounded-xl shadow-sm hover:shadow transition-all"
           >
             <span>시민연대가 걸어온 길</span>

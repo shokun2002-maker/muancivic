@@ -119,13 +119,10 @@ export default async function ResourceDetailPage({ params }: Props) {
             </div>
           </div>
 
-          <a
-            href="#download"
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#176B52] hover:bg-[#0D4938] text-white font-bold text-sm rounded-xl shadow transition-colors"
-          >
-            <Download className="w-4 h-4" />
-            <span>원문 다운로드</span>
-          </a>
+          <span className="px-4 py-2 bg-[#176B52]/10 text-[#176B52] font-bold text-xs rounded-xl flex items-center gap-1.5">
+            <FileText className="w-4 h-4" />
+            <span>첨부자료 ({resource.fileSize || "PDF"})</span>
+          </span>
         </div>
 
         {/* Share Buttons */}

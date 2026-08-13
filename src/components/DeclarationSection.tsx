@@ -35,7 +35,7 @@ export default function DeclarationSection() {
 
         {/* Button */}
         <Link
-          href="#declaration-full"
+          href="/about/declaration"
           className="inline-flex items-center gap-2 px-8 py-4 bg-[#F2B544] hover:bg-[#e0a435] text-[#0D4938] font-extrabold text-base rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-0.5"
         >
           <BookOpen className="w-5 h-5" />
