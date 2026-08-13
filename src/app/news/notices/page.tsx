@@ -1,17 +1,29 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import SubHero from "@/components/SubHero";
 import SearchInput from "@/components/SearchInput";
 import CategoryBadge from "@/components/CategoryBadge";
-import { NOTICES_DATA } from "@/data/notices";
+import { getLatestNotices } from "@/lib/data/posts";
+import type { NoticePost } from "@/data/notices";
 import { Bell, Eye, Calendar, ChevronRight } from "lucide-react";
 
 export default function NoticesListPage() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [notices, setNotices] = useState<NoticePost[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const filteredNotices = NOTICES_DATA.filter(
+  useEffect(() => {
+    async function load() {
+      const data = await getLatestNotices();
+      setNotices(data);
+      setLoading(false);
+    }
+    load();
+  }, []);
+
+  const filteredNotices = notices.filter(
     (n) =>
       searchQuery.trim() === "" ||
       n.title.toLowerCase().includes(searchQuery.toLowerCase()) ||

@@ -1,10 +1,17 @@
 "use client";
 
-import React, { useState, useEffect, createContext, useContext } from "react";
+import React, { useState, useEffect, createContext, useContext, ReactNode } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { getAdminProfileByUserId, AdminProfile } from "@/lib/auth/admin";
 import AdminLoading from "./AdminLoading";
+
+// Public routes that do not require admin authentication
+export const publicAdminPaths = [
+  "/admin/login",
+  "/admin/forgot-password",
+  "/admin/reset-password",
+];
 
 interface AdminContextType {
   adminProfile: AdminProfile | null;
@@ -19,18 +26,23 @@ const AdminContext = createContext<AdminContextType>({
 export const useAdmin = () => useContext(AdminContext);
 
 interface Props {
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 export default function AdminAuthGuard({ children }: Props) {
+  // All hooks are declared first
   const router = useRouter();
   const pathname = usePathname();
   const [adminProfile, setAdminProfile] = useState<AdminProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Determine if current route is public
+  const isPublicAdminPath = publicAdminPaths.includes(pathname);
+
+  // Effect always runs
   useEffect(() => {
-    // If on /admin/login page, do not guard
-    if (pathname === "/admin/login") {
+    // Skip auth checks for public routes
+    if (isPublicAdminPath) {
       setLoading(false);
       return;
     }
@@ -44,15 +56,16 @@ export default function AdminAuthGuard({ children }: Props) {
           return;
         }
 
-        const { data: { session } } = await supabase.auth.getSession();
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
 
-        if (!session || !session.user) {
+        if (!session?.user) {
           router.push("/admin/login");
           return;
         }
 
         const profile = await getAdminProfileByUserId(session.user.id);
-
         if (!profile) {
           await supabase.auth.signOut();
           router.push("/admin/login?error=no_permission");
@@ -60,8 +73,8 @@ export default function AdminAuthGuard({ children }: Props) {
         }
 
         setAdminProfile(profile);
-      } catch (err) {
-        console.error("AdminAuthGuard error:", err);
+      } catch (error) {
+        console.error("AdminAuthGuard error:", error);
         router.push("/admin/login");
       } finally {
         setLoading(false);
@@ -69,12 +82,14 @@ export default function AdminAuthGuard({ children }: Props) {
     }
 
     checkAuth();
-  }, [pathname, router]);
+  }, [isPublicAdminPath, router]);
 
-  if (pathname === "/admin/login") {
+  // Rendering phase – public routes render children immediately
+  if (isPublicAdminPath) {
     return <>{children}</>;
   }
 
+  // Protected routes handling
   if (loading) {
     return <AdminLoading message="관리자 세션 및 접근 권한을 확인하고 있습니다..." />;
   }

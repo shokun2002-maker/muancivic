@@ -1,25 +1,67 @@
 "use client";
 
-import React, { use } from "react";
+import React from "react";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, useParams } from "next/navigation";
 import SubHero from "@/components/SubHero";
 import CategoryBadge from "@/components/CategoryBadge";
 import ShareButtons from "@/components/ShareButtons";
-import { STATEMENTS_DATA } from "@/data/statements";
+import { getPublishedPostBySlug, getLatestStatements } from "@/lib/data/posts";
+import type { StatementPost } from "@/data/statements";
 import { ChevronLeft, Calendar, FileText, Download, AlertCircle } from "lucide-react";
 
-interface Props {
-  params: Promise<{ slug: string }>;
-}
 
-export default function StatementDetailPage({ params }: Props) {
-  const { slug } = use(params);
-  const statement = STATEMENTS_DATA.find((item) => item.slug === slug);
+
+export default function StatementDetailPage() {
+  const routeParams = useParams<{ slug: string }>();
+  const slug = routeParams?.slug;
+  const [statement, setStatement] = React.useState<StatementPost | null>(null);
+  const [statements, setStatements] = React.useState<StatementPost[]>([]);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    async function fetchData() {
+      // Validate slug
+      if (!slug || typeof slug !== "string") {
+        setError("잘못된 게시글 주소입니다.");
+        setLoading(false);
+        return;
+      }
+      try {
+        const post = await getPublishedPostBySlug("statement", slug) as StatementPost;
+        const list = await getLatestStatements();
+        setStatement(post);
+        setStatements(list);
+        if (!post) {
+          notFound();
+        }
+      } catch (e) {
+        console.error("Error loading statement:", e);
+        setError("게시글을 불러오는 중 오류가 발생했습니다.");
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchData();
+  }, [slug]);
+
+  if (loading) {
+    return <p className="text-gray-500">Loading...</p>;
+  }
+
+  if (error) {
+    return <p className="text-red-600">{error}</p>;
+  }
 
   if (!statement) {
     notFound();
+    return null;
   }
+
+  const currentIndex = statements.findIndex((s) => s.slug === slug);
+  const prevStatement = currentIndex < statements.length - 1 ? statements[currentIndex + 1] : null;
+  const nextStatement = currentIndex > 0 ? statements[currentIndex - 1] : null;
 
   return (
     <div>

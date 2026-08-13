@@ -1,29 +1,67 @@
 "use client";
 
-import React, { use } from "react";
+import React from "react";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, useParams } from "next/navigation";
 import SubHero from "@/components/SubHero";
 import CategoryBadge from "@/components/CategoryBadge";
 import ShareButtons from "@/components/ShareButtons";
-import { NOTICES_DATA } from "@/data/notices";
+import { getPublishedPostBySlug, getLatestNotices } from "@/lib/data/posts";
+import type { NoticePost } from "@/data/notices";
 import { ChevronLeft, Calendar, Eye, FileText, Download, ChevronRight } from "lucide-react";
 
-interface Props {
-  params: Promise<{ slug: string }>;
-}
 
-export default function NoticeDetailPage({ params }: Props) {
-  const { slug } = use(params);
-  const currentIndex = NOTICES_DATA.findIndex((n) => n.slug === slug);
-  const notice = NOTICES_DATA[currentIndex];
+
+export default function NoticeDetailPage() {
+  const routeParams = useParams<{ slug: string }>();
+  const slug = routeParams?.slug;
+  const [notice, setNotice] = React.useState<NoticePost | null>(null);
+  const [notices, setNotices] = React.useState<NoticePost[]>([]);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    async function fetchData() {
+      // Validate slug
+      if (!slug || typeof slug !== "string") {
+        setError("잘못된 게시글 주소입니다.");
+        setLoading(false);
+        return;
+      }
+      try {
+        const post = await getPublishedPostBySlug("notice", slug) as NoticePost;
+        const list = await getLatestNotices();
+        setNotice(post);
+        setNotices(list);
+        if (!post) {
+          notFound();
+        }
+      } catch (e) {
+        console.error("Error loading notice:", e);
+        setError("게시글을 불러오는 중 오류가 발생했습니다.");
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchData();
+  }, [slug]);
+
+  if (loading) {
+    return <p className="text-gray-500">Loading...</p>;
+  }
+
+  if (error) {
+    return <p className="text-red-600">{error}</p>;
+  }
 
   if (!notice) {
     notFound();
+    return null;
   }
 
-  const prevNotice = currentIndex < NOTICES_DATA.length - 1 ? NOTICES_DATA[currentIndex + 1] : null;
-  const nextNotice = currentIndex > 0 ? NOTICES_DATA[currentIndex - 1] : null;
+  const currentIndex = notices.findIndex((n) => n.slug === slug);
+  const prevNotice = currentIndex < notices.length - 1 ? notices[currentIndex + 1] : null;
+  const nextNotice = currentIndex > 0 ? notices[currentIndex - 1] : null;
 
   return (
     <div>

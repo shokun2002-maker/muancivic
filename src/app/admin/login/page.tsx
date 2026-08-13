@@ -166,6 +166,11 @@ function LoginForm() {
           <ArrowLeft className="w-3.5 h-3.5" />
           <span>일반 홈페이지로 돌아가기</span>
         </Link>
+        <div className="mt-2">
+          <Link href="/admin/forgot-password" className="text-xs font-bold text-gray-500 hover:text-[#176B52] transition-colors">
+            비밀번호를 잊으셨나요?
+          </Link>
+        </div>
       </div>
     </div>
   );

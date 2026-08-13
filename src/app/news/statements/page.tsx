@@ -1,13 +1,35 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import SubHero from "@/components/SubHero";
 import CategoryBadge from "@/components/CategoryBadge";
-import { STATEMENTS_DATA } from "@/data/statements";
+import { getLatestStatements } from "@/lib/data/posts";
+import type { StatementPost } from "@/data/statements";
 import { FileText, Calendar, ChevronRight, AlertCircle } from "lucide-react";
 
 export default function StatementsListPage() {
+  const [statements, setStatements] = useState<StatementPost[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const data = await getLatestStatements();
+        setStatements(data);
+      } catch (err) {
+        console.error("Failed to load statements:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, []);
+
+  if (loading) {
+    return <p className="text-center py-8">Loading...</p>;
+  }
+
   return (
     <div>
       {/* Sub Hero */}
@@ -28,7 +50,7 @@ export default function StatementsListPage() {
           <div>
             <div className="inline-flex items-center gap-1.5 text-xs font-bold text-[#176B52] uppercase tracking-wider mb-2">
               <FileText className="w-4 h-4" />
-              STATEMENTS & COMMENTARIES
+              STATEMENTS &amp; COMMENTARIES
             </div>
             <h2 className="text-2xl sm:text-4xl font-extrabold text-[#222222]">
               성명·논평
@@ -54,7 +76,7 @@ export default function StatementsListPage() {
 
         {/* Statements Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
-          {STATEMENTS_DATA.map((item) => (
+          {statements.map((item) => (
             <div
               key={item.id}
               className="bg-white rounded-3xl p-8 border border-gray-200/80 shadow-sm hover:shadow-xl hover:border-[#176B52]/40 transition-all duration-300 flex flex-col justify-between group"
@@ -67,11 +89,9 @@ export default function StatementsListPage() {
                     {item.date}
                   </span>
                 </div>
-
                 <h3 className="text-xl font-bold text-[#222222] group-hover:text-[#176B52] transition-colors leading-snug mb-3">
                   {item.title}
                 </h3>
-
                 <p className="text-xs text-[#666666] leading-relaxed line-clamp-3 mb-6">
                   {item.summary}
                 </p>
