@@ -1,17 +1,30 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import SubHero from "@/components/SubHero";
 import FilterBar from "@/components/FilterBar";
-import { MEDIA_DATA, MEDIA_CATEGORIES } from "@/data/media";
-import { Camera, Play, Calendar, ChevronRight, Video } from "lucide-react";
+import { getPublishedMedia } from "@/lib/data/media";
+import { MEDIA_CATEGORIES, MediaAlbum } from "@/data/media";
+import { Camera, Play, Calendar, ChevronRight, Loader2 } from "lucide-react";
 
 export default function MediaListPage() {
   const [activeCategory, setActiveCategory] = useState("전체");
+  const [mediaList, setMediaList] = useState<MediaAlbum[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const filteredMedia = MEDIA_DATA.filter((item) => {
+  useEffect(() => {
+    async function loadData() {
+      setLoading(true);
+      const data = await getPublishedMedia();
+      setMediaList(data);
+      setLoading(false);
+    }
+    loadData();
+  }, []);
+
+  const filteredMedia = mediaList.filter((item) => {
     if (activeCategory === "전체") return true;
     if (activeCategory === "사진") return item.type === "photo";
     if (activeCategory === "영상") return item.type === "video";
@@ -58,71 +71,85 @@ export default function MediaListPage() {
           />
         </div>
 
-        {/* Gallery Cards Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-          {filteredMedia.map((item) => (
-            <div
-              key={item.id}
-              className="bg-white rounded-3xl overflow-hidden border border-gray-200/80 shadow-sm hover:shadow-xl transition-all duration-300 group flex flex-col justify-between"
-            >
-              <div>
-                {/* Media Thumbnail */}
-                <div className="relative aspect-video w-full bg-gray-100 overflow-hidden">
-                  <Image
-                    src={item.coverImage}
-                    alt={item.title}
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                  <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors" />
+        {/* Loading / Gallery Cards Grid */}
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-20">
+            <Loader2 className="w-8 h-8 text-[#176B52] animate-spin mb-2" />
+            <p className="text-xs font-bold text-gray-500">사진과 영상 데이터를 읽어오고 있습니다...</p>
+          </div>
+        ) : filteredMedia.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+            {filteredMedia.map((item) => (
+              <div
+                key={item.id}
+                className="bg-white rounded-3xl overflow-hidden border border-gray-200/80 shadow-sm hover:shadow-xl transition-all duration-300 group flex flex-col justify-between"
+              >
+                <div>
+                  {/* Media Thumbnail */}
+                  <div className="relative aspect-video w-full bg-gray-100 overflow-hidden">
+                    <Image
+                      src={item.coverImage}
+                      alt={item.title}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors" />
 
-                  {item.type === "video" ? (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="w-14 h-14 rounded-full bg-[#176B52] text-white flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:bg-[#F2B544] group-hover:text-[#0D4938] transition-all">
-                        <Play className="w-6 h-6 ml-1 fill-current" />
+                    {item.type === "video" ? (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="w-14 h-14 rounded-full bg-[#176B52] text-white flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:bg-[#F2B544] group-hover:text-[#0D4938] transition-all">
+                          <Play className="w-6 h-6 ml-1 fill-current" />
+                        </div>
                       </div>
-                    </div>
-                  ) : (
-                    <div className="absolute top-3 left-3 bg-black/60 text-white text-[11px] font-bold px-2.5 py-1 rounded-md backdrop-blur-sm">
-                      사진 앨범
-                    </div>
-                  )}
+                    ) : (
+                      <div className="absolute top-3 left-3 bg-black/60 text-white text-[11px] font-bold px-2.5 py-1 rounded-md backdrop-blur-sm">
+                        사진 앨범
+                      </div>
+                    )}
 
-                  {item.isVideoPending && (
-                    <div className="absolute bottom-3 right-3 bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow">
-                      영상 준비 중
-                    </div>
-                  )}
-                </div>
-
-                <div className="p-6">
-                  <div className="flex items-center gap-1 text-xs text-gray-400 font-medium mb-2">
-                    <Calendar className="w-3.5 h-3.5" />
-                    {item.date}
+                    {item.isVideoPending && (
+                      <div className="absolute bottom-3 right-3 bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow">
+                        영상 준비 중
+                      </div>
+                    )}
                   </div>
 
-                  <h3 className="text-base font-bold text-[#222222] group-hover:text-[#176B52] transition-colors leading-snug line-clamp-2 mb-2">
-                    {item.title}
-                  </h3>
+                  <div className="p-6">
+                    <div className="flex items-center gap-1 text-xs text-gray-400 font-medium mb-2">
+                      <Calendar className="w-3.5 h-3.5" />
+                      {item.date}
+                    </div>
 
-                  <p className="text-xs text-[#666666] leading-relaxed line-clamp-2">
-                    {item.description}
-                  </p>
+                    <h3 className="text-base font-bold text-[#222222] group-hover:text-[#176B52] transition-colors leading-snug line-clamp-2 mb-2">
+                      {item.title}
+                    </h3>
+
+                    <p className="text-xs text-[#666666] leading-relaxed line-clamp-2">
+                      {item.description}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="p-6 pt-0">
+                  <Link
+                    href={`/news/media/${item.slug}`}
+                    className="w-full py-2.5 px-4 bg-[#F7F7F3] group-hover:bg-[#176B52] text-[#176B52] group-hover:text-white font-bold text-xs rounded-xl transition-all duration-200 flex items-center justify-between"
+                  >
+                    <span>{item.type === "video" ? "영상 보기" : "앨범 전체보기"}</span>
+                    <ChevronRight className="w-4 h-4" />
+                  </Link>
                 </div>
               </div>
-
-              <div className="p-6 pt-0">
-                <Link
-                  href={`/news/media/${item.slug}`}
-                  className="w-full py-2.5 px-4 bg-[#F7F7F3] group-hover:bg-[#176B52] text-[#176B52] group-hover:text-white font-bold text-xs rounded-xl transition-all duration-200 flex items-center justify-between"
-                >
-                  <span>{item.type === "video" ? "영상 보기" : "앨범 전체보기"}</span>
-                  <ChevronRight className="w-4 h-4" />
-                </Link>
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-20 bg-white rounded-3xl border border-gray-200">
+            <Camera className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+            <p className="text-sm font-bold text-gray-500">
+              등록된 사진·영상 미디어가 없습니다.
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -1,14 +1,15 @@
 "use client";
 
-import React, { useState, use } from "react";
+import React, { useState, useEffect, use } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import SubHero from "@/components/SubHero";
 import Lightbox from "@/components/Lightbox";
 import ShareButtons from "@/components/ShareButtons";
-import { MEDIA_DATA } from "@/data/media";
-import { ChevronLeft, Calendar, Camera, Play, Video, ZoomIn } from "lucide-react";
+import { getPublishedMediaBySlug } from "@/lib/data/media";
+import { MediaAlbum } from "@/data/media";
+import { ChevronLeft, Calendar, Camera, Play, Video, ZoomIn, Loader2 } from "lucide-react";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -16,13 +17,38 @@ interface Props {
 
 export default function MediaDetailPage({ params }: Props) {
   const { slug } = use(params);
-  const album = MEDIA_DATA.find((item) => item.slug === slug);
+  const [album, setAlbum] = useState<MediaAlbum | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [notFoundTriggered, setNotFoundTriggered] = useState(false);
 
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
 
-  if (!album) {
+  useEffect(() => {
+    async function loadData() {
+      setLoading(true);
+      const data = await getPublishedMediaBySlug(slug);
+      if (!data) {
+        setNotFoundTriggered(true);
+      } else {
+        setAlbum(data);
+      }
+      setLoading(false);
+    }
+    loadData();
+  }, [slug]);
+
+  if (notFoundTriggered) {
     notFound();
+  }
+
+  if (loading || !album) {
+    return (
+      <div className="flex flex-col items-center justify-center py-32 min-h-[60vh]">
+        <Loader2 className="w-8 h-8 text-[#176B52] animate-spin mb-2" />
+        <p className="text-xs font-bold text-gray-500">사진·영상 데이터를 읽어오고 있습니다...</p>
+      </div>
+    );
   }
 
   const photos = album.photoList || [album.coverImage];

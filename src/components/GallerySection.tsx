@@ -1,12 +1,26 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { MEDIA_DATA } from "@/data/media";
-import { Camera, Play, Calendar, ChevronRight } from "lucide-react";
+import { getPublishedMedia } from "@/lib/data/media";
+import { MediaAlbum } from "@/data/media";
+import { Camera, Play, Calendar, ChevronRight, Loader2 } from "lucide-react";
 
 export default function GallerySection() {
+  const [mediaList, setMediaList] = useState<MediaAlbum[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadData() {
+      setLoading(true);
+      const data = await getPublishedMedia();
+      setMediaList(data.slice(0, 4));
+      setLoading(false);
+    }
+    loadData();
+  }, []);
+
   return (
     <section id="gallery" className="py-16 sm:py-24 bg-white border-y border-gray-200/60">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -35,51 +49,62 @@ export default function GallerySection() {
         </div>
 
         {/* 4 Media Items Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
-          {MEDIA_DATA.map((item) => (
-            <div
-              key={item.id}
-              className="bg-[#F7F7F3] rounded-2xl overflow-hidden border border-gray-200/80 shadow-sm hover:shadow-xl transition-all duration-300 group flex flex-col justify-between"
-            >
-              {/* Media Box */}
-              <div className="relative aspect-video bg-gray-100 overflow-hidden">
-                <Image
-                  src={item.coverImage}
-                  alt={item.title}
-                  fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-                <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors" />
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-16">
+            <Loader2 className="w-6 h-6 text-[#176B52] animate-spin mb-2" />
+            <p className="text-xs text-gray-500 font-medium">갤러리를 불러오는 중...</p>
+          </div>
+        ) : mediaList.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+            {mediaList.map((item) => (
+              <div
+                key={item.id}
+                className="bg-[#F7F7F3] rounded-2xl overflow-hidden border border-gray-200/80 shadow-sm hover:shadow-xl transition-all duration-300 group flex flex-col justify-between"
+              >
+                {/* Media Box */}
+                <div className="relative aspect-video bg-gray-100 overflow-hidden">
+                  <Image
+                    src={item.coverImage}
+                    alt={item.title}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors" />
 
-                {item.type === "video" ? (
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-12 h-12 rounded-full bg-[#176B52] text-white flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:bg-[#F2B544] group-hover:text-[#0D4938] transition-all">
-                      <Play className="w-5 h-5 ml-0.5 fill-current" />
+                  {item.type === "video" ? (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-12 h-12 rounded-full bg-[#176B52] text-white flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:bg-[#F2B544] group-hover:text-[#0D4938] transition-all">
+                        <Play className="w-5 h-5 ml-0.5 fill-current" />
+                      </div>
                     </div>
-                  </div>
-                ) : (
-                  <div className="absolute top-3 left-3 bg-black/60 text-white text-[10px] font-bold px-2.5 py-1 rounded-md backdrop-blur-sm z-10">
-                    사진 앨범
-                  </div>
-                )}
-              </div>
+                  ) : (
+                    <div className="absolute top-3 left-3 bg-black/60 text-white text-[10px] font-bold px-2.5 py-1 rounded-md backdrop-blur-sm z-10">
+                      사진 앨범
+                    </div>
+                  )}
+                </div>
 
-              {/* Card Footer Info */}
-              <div className="p-5 flex-1 flex flex-col justify-between bg-white">
-                <Link href={`/news/media/${item.slug}`}>
-                  <h3 className="text-sm font-bold text-[#222222] group-hover:text-[#176B52] transition-colors leading-snug line-clamp-2 mb-3">
-                    {item.title}
-                  </h3>
-                </Link>
+                {/* Card Footer Info */}
+                <div className="p-5 flex-1 flex flex-col justify-between bg-white">
+                  <Link href={`/news/media/${item.slug}`}>
+                    <h3 className="text-sm font-bold text-[#222222] group-hover:text-[#176B52] transition-colors leading-snug line-clamp-2 mb-3">
+                      {item.title}
+                    </h3>
+                  </Link>
 
-                <div className="flex items-center gap-1.5 text-xs text-[#666666] font-medium pt-3 border-t border-gray-100">
-                  <Calendar className="w-3.5 h-3.5 text-gray-400" />
-                  <span>{item.date}</span>
+                  <div className="flex items-center gap-1.5 text-xs text-[#666666] font-medium pt-3 border-t border-gray-100">
+                    <Calendar className="w-3.5 h-3.5 text-gray-400" />
+                    <span>{item.date}</span>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12 bg-white rounded-2xl border border-gray-200 text-gray-500 text-sm">
+            등록된 갤러리 미디어가 없습니다.
+          </div>
+        )}
       </div>
     </section>
   );

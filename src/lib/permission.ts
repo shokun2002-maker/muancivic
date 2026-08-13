@@ -35,3 +35,8 @@ export const canManageVoices = (role: AdminRole): boolean => {
   // Only super_admin and content_admin can manage citizen voices
   return role === AdminRole.super_admin || role === AdminRole.content_admin;
 };
+
+export const canManageMedia = (role: AdminRole): boolean => {
+  // Only super_admin and content_admin can manage media albums
+  return role === AdminRole.super_admin || role === AdminRole.content_admin;
+};
