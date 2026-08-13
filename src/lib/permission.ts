@@ -20,3 +20,8 @@ export const canManagePosts = (role: AdminRole): boolean => {
 export const canManageIssues = (role: AdminRole): boolean => {
   return role === AdminRole.super_admin || role === AdminRole.content_admin;
 };
+
+export const canManageMonitoring = (role: AdminRole): boolean => {
+  // Only super_admin and content_admin can manage monitoring posts
+  return role === AdminRole.super_admin || role === AdminRole.content_admin;
+};
