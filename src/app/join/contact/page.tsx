@@ -2,7 +2,8 @@
 
 import React, { useState } from "react";
 import SubHero from "@/components/SubHero";
-import { MessageSquare, ShieldAlert, Send, Lock, Paperclip, CheckCircle2 } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
+import { MessageSquare, ShieldAlert, Send, Lock, CheckCircle2, Loader2 } from "lucide-react";
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -12,10 +13,10 @@ export default function ContactPage() {
     name: "",
     contact: "",
     email: "",
-    fileName: "",
     agree: false,
   });
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
   const inquiryTypes = [
@@ -27,13 +28,44 @@ export default function ContactPage() {
     "기타",
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.agree) {
       alert("개인정보 처리 방침에 동의해 주세요.");
       return;
     }
-    setSubmitted(true);
+    if (isSubmitting) return;
+
+    setIsSubmitting(true);
+    try {
+      const supabase = createClient();
+      if (!supabase) {
+        throw new Error("Supabase 클라이언트가 초기화되지 않았습니다.");
+      }
+
+      // Insert inquiry row: status='접수', is_public=false (forced secret/private)
+      const { error } = await supabase.from("inquiries").insert({
+        type: formData.type,
+        title: formData.title.trim(),
+        content: formData.content.trim(),
+        name: formData.name.trim(),
+        phone: formData.contact.trim() || null,
+        email: formData.email.trim() || null,
+        status: "접수",
+        is_public: false,
+      });
+
+      if (error) throw error;
+
+      setSubmitted(true);
+    } catch (err) {
+      console.error("Contact submission error:", err);
+      const errMsg =
+        err instanceof Error ? err.message : "문의·제보 제출 중 오류가 발생했습니다.";
+      alert(errMsg);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -65,21 +97,11 @@ export default function ContactPage() {
           </p>
         </div>
 
-        {/* Security & Confidentiality Banners (MANDATORY FROM PROMPT) */}
+        {/* Security & Confidentiality Banner */}
         <div className="space-y-3 mb-10">
           <div className="bg-[#0D4938] text-white p-4 rounded-2xl flex items-center gap-3 text-xs sm:text-sm font-bold shadow-md">
             <Lock className="w-5 h-5 text-[#F2B544] shrink-0" />
             <span>제보 내용은 자동으로 홈페이지에 공개되지 않으며 제보자의 익명과 신원이 철저히 보호됩니다.</span>
-          </div>
-
-          <div className="bg-amber-50 border border-amber-200 p-4 rounded-2xl flex items-center justify-between text-xs font-bold text-amber-800">
-            <div className="flex items-center gap-2.5">
-              <ShieldAlert className="w-4 h-4 text-amber-600 shrink-0" />
-              <span>현재는 UI 시연 단계로 작성된 내용은 실제 전송되지 않습니다.</span>
-            </div>
-            <span className="bg-amber-200/80 text-amber-900 px-2 py-0.5 rounded text-[10px]">
-              시연 단계
-            </span>
           </div>
         </div>
 
@@ -87,17 +109,28 @@ export default function ContactPage() {
           <div className="bg-white rounded-3xl p-10 border border-[#176B52] text-center space-y-4 shadow-lg">
             <CheckCircle2 className="w-16 h-16 text-[#176B52] mx-auto" />
             <h3 className="text-2xl font-extrabold text-[#222222]">
-              제보 작성 시연이 완료되었습니다!
+              소중한 문의·제보가 성공적으로 접수되었습니다!
             </h3>
             <p className="text-sm text-gray-600 max-w-md mx-auto leading-relaxed">
-              제보 전송 시연이 완료되었습니다. 추후 실제 메일 서버 및 1:1 비밀 제보 시스템 연동 시 안전한 보안 채널로 작동합니다.
+              제보자의 신원과 내용은 비밀로 안전하게 보호됩니다. 담당자가 확인 후 성심껏 검토하도록 하겠습니다.
             </p>
             <button
               type="button"
-              onClick={() => setSubmitted(false)}
-              className="px-6 py-2.5 bg-[#176B52] text-white font-bold text-xs rounded-xl shadow"
+              onClick={() => {
+                setSubmitted(false);
+                setFormData({
+                  type: "일반문의",
+                  title: "",
+                  content: "",
+                  name: "",
+                  contact: "",
+                  email: "",
+                  agree: false,
+                });
+              }}
+              className="px-6 py-2.5 bg-[#176B52] text-white font-bold text-xs rounded-xl shadow hover:bg-[#0D4938] transition-colors"
             >
-              다시 작성 시연하기
+              확인
             </button>
           </div>
         ) : (
@@ -196,36 +229,11 @@ export default function ContactPage() {
               </div>
             </div>
 
-            {/* File Attachment UI (Sample) */}
-            <div>
-              <label className="block text-xs font-bold text-gray-700 mb-1.5">
-                증빙 사진 및 파일 첨부 (선택)
-              </label>
-              <div className="flex items-center gap-3">
-                <input
-                  type="text"
-                  readOnly
-                  placeholder={formData.fileName || "첨부할 문서나 사진 파일 (시연 UI)"}
-                  className="flex-1 px-4 py-2.5 text-xs bg-gray-50 border border-gray-200 rounded-xl text-gray-500"
-                />
-                <button
-                  type="button"
-                  onClick={() => {
-                    setFormData({ ...formData, fileName: "샘플_현장_사진.jpg" });
-                    alert("샘플 파일 첨부 선택 완료");
-                  }}
-                  className="px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs rounded-xl flex items-center gap-1.5"
-                >
-                  <Paperclip className="w-3.5 h-3.5" />
-                  <span>파일 찾기</span>
-                </button>
-              </div>
-            </div>
-
             <div className="pt-2">
               <label className="flex items-center gap-2 text-xs text-gray-600 font-medium cursor-pointer">
                 <input
                   type="checkbox"
+                  required
                   checked={formData.agree}
                   onChange={(e) => setFormData({ ...formData, agree: e.target.checked })}
                   className="rounded text-[#176B52] focus:ring-[#176B52]"
@@ -236,10 +244,20 @@ export default function ContactPage() {
 
             <button
               type="submit"
-              className="w-full py-4 bg-[#176B52] hover:bg-[#0D4938] text-white font-extrabold text-sm sm:text-base rounded-2xl shadow hover:shadow-lg transition-all flex items-center justify-center gap-2"
+              disabled={isSubmitting}
+              className="w-full py-4 bg-[#176B52] hover:bg-[#0D4938] text-white font-extrabold text-sm sm:text-base rounded-2xl shadow hover:shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50"
             >
-              <Send className="w-4 h-4" />
-              <span>문의·제보 제출하기 (시연)</span>
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <span>제출 처리 중...</span>
+                </>
+              ) : (
+                <>
+                  <Send className="w-4 h-4" />
+                  <span>문의·제보 제출하기</span>
+                </>
+              )}
             </button>
           </form>
         )}

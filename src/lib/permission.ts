@@ -45,3 +45,12 @@ export const canManageMembers = (role: AdminRole): boolean => {
   // Only super_admin and member_admin can manage member profiles
   return role === AdminRole.super_admin || role === AdminRole.member_admin;
 };
+
+export const canManageInquiries = (role: AdminRole): boolean => {
+  // super_admin, operator, and member_admin can manage inquiries
+  return (
+    role === AdminRole.super_admin ||
+    role === AdminRole.operator ||
+    role === AdminRole.member_admin
+  );
+};
