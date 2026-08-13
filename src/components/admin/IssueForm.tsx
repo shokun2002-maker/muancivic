@@ -117,7 +117,7 @@ export default function IssueForm({ initialData, onSubmit, onCancel }: IssueForm
       <div>
         <label className="block font-medium mb-1">썸네일 URL (선택)</label>
         <input
-          type="url"
+          type="text"
           value={thumbnail}
           onChange={(e) => setThumbnail(e.target.value)}
           className="w-full border rounded px-3 py-2"

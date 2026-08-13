@@ -180,16 +180,9 @@ export default function IssueDetailPage({ params }: Props) {
           </h2>
           <div className="space-y-4">
             {issue.timeline.map((tl, idx) => (
-              <div
-                key={idx}
-                className="p-4 bg-[#F7F7F3] rounded-2xl flex items-start gap-4 border border-gray-100"
-              >
-                <span className="px-3 py-1 bg-[#176B52] text-white text-xs font-bold rounded-lg shrink-0">
-                  {tl.dateStr}
-                </span>
-                <span className="text-sm font-semibold text-[#333333] pt-0.5">
-                  {tl.content}
-                </span>
+              <div key={idx} className="flex gap-4 text-sm">
+                <span className="font-bold text-[#176B52] shrink-0 w-24">{tl.dateStr}</span>
+                <span className="text-[#333333]">{tl.content}</span>
               </div>
             ))}
           </div>

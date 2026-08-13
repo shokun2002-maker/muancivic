@@ -4,6 +4,8 @@ import React, { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import IssueForm from "@/components/admin/IssueForm";
 import { getAdminIssueById, updateIssue } from "@/lib/admin/issues";
+import PrincipleList from "@/components/admin/PrincipleList";
+import UpdateList from "@/components/admin/UpdateList";
 import { Issue } from "@/types/issue";
 
 export default function EditIssuePage() {
@@ -47,7 +49,12 @@ export default function EditIssuePage() {
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">현안 수정</h1>
       {initialData && (
-        <IssueForm initialData={initialData} onSubmit={handleSubmit} onCancel={() => router.back()} />
+        <>
+          <IssueForm initialData={initialData} onSubmit={handleSubmit} onCancel={() => router.back()} />
+          {/* Admin sub‑sections */}
+          <PrincipleList issueId={issueId} />
+          <UpdateList issueId={issueId} />
+        </>
       )}
     </div>
   );
