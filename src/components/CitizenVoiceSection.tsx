@@ -1,15 +1,27 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { MOCK_CITIZEN_VOICES, CitizenVoiceItem } from "@/data/mockData";
-import { ThumbsUp, MessageSquarePlus, MessageSquare, Tag, ChevronRight } from "lucide-react";
+import { getPublishedVoices } from "@/lib/data/voices";
+import { CitizenVoice } from "@/data/voices";
+import { ThumbsUp, MessageSquarePlus, MessageSquare, Tag, ChevronRight, Loader2 } from "lucide-react";
 import VoiceFormModal from "./VoiceFormModal";
 
 export default function CitizenVoiceSection() {
-  const [voices, setVoices] = useState<CitizenVoiceItem[]>(MOCK_CITIZEN_VOICES);
+  const [voices, setVoices] = useState<CitizenVoice[]>([]);
+  const [loading, setLoading] = useState(true);
   const [likedMap, setLikedMap] = useState<Record<string, boolean>>({});
   const [modalOpen, setModalOpen] = useState(false);
+
+  useEffect(() => {
+    async function loadData() {
+      setLoading(true);
+      const data = await getPublishedVoices();
+      setVoices(data.slice(0, 3));
+      setLoading(false);
+    }
+    loadData();
+  }, []);
 
   const handleLike = (id: string, e: React.MouseEvent) => {
     e.preventDefault();
@@ -29,12 +41,6 @@ export default function CitizenVoiceSection() {
 
       return { ...prev, [id]: newStatus };
     });
-  };
-
-  const getSlugById = (id: string) => {
-    if (id.includes("1")) return "transport-connect";
-    if (id.includes("2")) return "youth-jobs";
-    return "village-facility";
   };
 
   return (
@@ -76,10 +82,14 @@ export default function CitizenVoiceSection() {
         </div>
 
         {/* Proposals Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
-          {voices.map((item) => {
-            const slug = getSlugById(item.id);
-            return (
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-16">
+            <Loader2 className="w-6 h-6 text-[#176B52] animate-spin mb-2" />
+            <p className="text-xs text-gray-500 font-medium">시민의 목소리를 불러오는 중...</p>
+          </div>
+        ) : voices.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+            {voices.map((item) => (
               <div
                 key={item.id}
                 className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200/80 hover:shadow-lg transition-all duration-200 flex flex-col justify-between"
@@ -93,7 +103,7 @@ export default function CitizenVoiceSection() {
                     <span className="text-xs text-[#666666] font-medium">{item.date}</span>
                   </div>
 
-                  <Link href={`/issues/voices/${slug}`}>
+                  <Link href={`/issues/voices/${item.slug}`}>
                     <h3 className="text-lg font-bold text-[#222222] hover:text-[#176B52] transition-colors leading-snug mb-4 line-clamp-3">
                       "{item.title}"
                     </h3>
@@ -117,9 +127,13 @@ export default function CitizenVoiceSection() {
                   </button>
                 </div>
               </div>
-            );
-          })}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12 bg-white rounded-2xl border border-gray-200 text-gray-500 text-sm">
+            등록된 시민 제안이 없습니다.
+          </div>
+        )}
       </div>
 
       <VoiceFormModal isOpen={modalOpen} onClose={() => setModalOpen(false)} />

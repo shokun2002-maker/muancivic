@@ -1,14 +1,15 @@
 "use client";
 
-import React, { useState, use } from "react";
+import React, { useState, useEffect, use } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import SubHero from "@/components/SubHero";
 import CategoryBadge from "@/components/CategoryBadge";
 import StatusBadge from "@/components/StatusBadge";
 import ShareButtons from "@/components/ShareButtons";
-import { VOICES_DATA } from "@/data/voices";
-import { ChevronLeft, ThumbsUp, Calendar, User, MessageSquare, AlertCircle, ShieldCheck } from "lucide-react";
+import { getPublishedVoiceBySlug } from "@/lib/data/voices";
+import { CitizenVoice } from "@/data/voices";
+import { ChevronLeft, ThumbsUp, Calendar, User, ShieldCheck, Loader2 } from "lucide-react";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -16,13 +17,38 @@ interface Props {
 
 export default function VoiceDetailPage({ params }: Props) {
   const { slug } = use(params);
-  const voice = VOICES_DATA.find((item) => item.slug === slug);
-
-  const [likesCount, setLikesCount] = useState(voice ? voice.likesCount : 0);
+  const [voice, setVoice] = useState<CitizenVoice | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [notFoundTriggered, setNotFoundTriggered] = useState(false);
+  const [likesCount, setLikesCount] = useState(0);
   const [isLiked, setIsLiked] = useState(false);
 
-  if (!voice) {
+  useEffect(() => {
+    async function loadData() {
+      setLoading(true);
+      const data = await getPublishedVoiceBySlug(slug);
+      if (!data) {
+        setNotFoundTriggered(true);
+      } else {
+        setVoice(data);
+        setLikesCount(data.likesCount);
+      }
+      setLoading(false);
+    }
+    loadData();
+  }, [slug]);
+
+  if (notFoundTriggered) {
     notFound();
+  }
+
+  if (loading || !voice) {
+    return (
+      <div className="flex flex-col items-center justify-center py-32 min-h-[60vh]">
+        <Loader2 className="w-8 h-8 text-[#176B52] animate-spin mb-2" />
+        <p className="text-xs font-bold text-gray-500">시민의 목소리를 읽어오고 있습니다...</p>
+      </div>
+    );
   }
 
   const handleLike = () => {
@@ -57,17 +83,6 @@ export default function VoiceDetailPage({ params }: Props) {
           <ChevronLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
           <span>시민의 목소리 목록으로 돌아가기</span>
         </Link>
-
-        {/* Disclaimer Notice Banner */}
-        <div className="bg-amber-50 border border-amber-200 p-4 rounded-2xl mb-8 flex items-center justify-between text-xs font-bold text-amber-800">
-          <div className="flex items-center gap-2.5">
-            <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
-            <span>안내: 본 게시물은 홈페이지 시연용 예시 콘텐츠입니다.</span>
-          </div>
-          <span className="bg-amber-200/80 text-amber-900 px-2 py-0.5 rounded text-[10px]">
-            시연용 예시
-          </span>
-        </div>
 
         {/* Header Card */}
         <div className="bg-white rounded-3xl p-8 sm:p-10 border border-gray-200/80 shadow-sm mb-10">
@@ -117,21 +132,6 @@ export default function VoiceDetailPage({ params }: Props) {
             </button>
           </div>
         </div>
-
-        {/* Alliance Review Box */}
-        {voice.allianceReview && (
-          <div className="bg-[#176B52]/10 rounded-3xl p-8 border border-[#176B52]/30 mb-10">
-            <div className="flex items-center gap-2 mb-3 pb-3 border-b border-[#176B52]/20 text-[#0D4938]">
-              <ShieldCheck className="w-5 h-5 text-[#176B52]" />
-              <h2 className="text-lg font-extrabold">
-                무안 자치주권시민연대 검토 및 조치 상황
-              </h2>
-            </div>
-            <p className="text-sm sm:text-base text-[#124d3a] leading-relaxed font-medium">
-              {voice.allianceReview}
-            </p>
-          </div>
-        )}
 
         {/* Share Buttons */}
         <ShareButtons title={voice.title} />
