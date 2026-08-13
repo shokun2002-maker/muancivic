@@ -40,3 +40,8 @@ export const canManageMedia = (role: AdminRole): boolean => {
   // Only super_admin and content_admin can manage media albums
   return role === AdminRole.super_admin || role === AdminRole.content_admin;
 };
+
+export const canManageMembers = (role: AdminRole): boolean => {
+  // Only super_admin and member_admin can manage member profiles
+  return role === AdminRole.super_admin || role === AdminRole.member_admin;
+};

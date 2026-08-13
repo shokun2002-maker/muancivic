@@ -2,7 +2,8 @@
 
 import React, { useState } from "react";
 import SubHero from "@/components/SubHero";
-import { UserPlus, ShieldCheck, AlertCircle, Send, CheckCircle2 } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
+import { UserPlus, ShieldCheck, Send, CheckCircle2, Loader2 } from "lucide-react";
 
 export default function MembershipPage() {
   const [formData, setFormData] = useState({
@@ -16,15 +17,47 @@ export default function MembershipPage() {
     privacyAgree: false,
   });
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.privacyAgree) {
-      alert("개인정보 수집 및 이용에 동의해 주세요.");
+      alert("개인정보 수집 및 이용 안내에 동의해 주세요.");
       return;
     }
-    setSubmitted(true);
+    if (isSubmitting) return;
+
+    setIsSubmitting(true);
+    try {
+      const supabase = createClient();
+      if (!supabase) {
+        throw new Error("Supabase 클라이언트가 초기화되지 않았습니다.");
+      }
+
+      // Insert member profile: status='대기', auth_user_id=null, joined_at=null for public application
+      const { error } = await supabase.from("member_profiles").insert({
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        phone: formData.phone.trim() || null,
+        region: formData.address.trim() || null,
+        member_type: formData.memberType as "정회원" | "준회원" | "후원회원",
+        status: "대기",
+        auth_user_id: null,
+        joined_at: null,
+      });
+
+      if (error) throw error;
+
+      setSubmitted(true);
+    } catch (err) {
+      console.error("Membership application error:", err);
+      const errMsg =
+        err instanceof Error ? err.message : "가입 신청 중 오류가 발생했습니다.";
+      alert(errMsg);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const interestsList = [
@@ -98,35 +131,34 @@ export default function MembershipPage() {
           </div>
         </div>
 
-        {/* 2. Disclaimer Notice Banner (REQUIRED BY PROMPT) */}
-        <div className="bg-amber-50 border border-amber-200 p-4 rounded-2xl mb-8 flex items-center justify-between text-xs font-bold text-amber-800">
-          <div className="flex items-center gap-2.5">
-            <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
-            <span>
-              현재는 홈페이지 UI 시연 단계로 실제 회원가입 정보는 저장되지 않습니다.
-            </span>
-          </div>
-          <span className="bg-amber-200/80 text-amber-900 px-2 py-0.5 rounded text-[10px]">
-            UI 시연 단계
-          </span>
-        </div>
-
         {/* Submitted Success Box */}
         {submitted ? (
           <div className="bg-white rounded-3xl p-10 border border-[#176B52] text-center space-y-4 shadow-lg">
             <CheckCircle2 className="w-16 h-16 text-[#176B52] mx-auto" />
             <h3 className="text-2xl font-extrabold text-[#222222]">
-              회원가입 신청 시연이 완료되었습니다!
+              회원가입 신청이 성공적으로 접수되었습니다!
             </h3>
             <p className="text-sm text-gray-600 max-w-md mx-auto leading-relaxed">
-              가입 신청 데이터 시연이 정상 완료되었습니다. 추후 Supabase 데이터베이스 및 회원 관리 시스템 연동 시 실제 DB 가입 프로세스로 전환됩니다.
+              시민연대 회원으로 가입해 주셔서 감사드립니다. 담당자 승인 검토 후 안내 연락을 드리겠습니다.
             </p>
             <button
               type="button"
-              onClick={() => setSubmitted(false)}
-              className="px-6 py-2.5 bg-[#176B52] text-white font-bold text-xs rounded-xl shadow"
+              onClick={() => {
+                setSubmitted(false);
+                setFormData({
+                  name: "",
+                  phone: "",
+                  email: "",
+                  address: "",
+                  memberType: "정회원",
+                  interest: "지방자치",
+                  motive: "",
+                  privacyAgree: false,
+                });
+              }}
+              className="px-6 py-2.5 bg-[#176B52] text-white font-bold text-xs rounded-xl shadow hover:bg-[#0D4938] transition-colors"
             >
-              다시 신청 시연하기
+              확인
             </button>
           </div>
         ) : (
@@ -253,20 +285,31 @@ export default function MembershipPage() {
               <label className="flex items-center gap-2 text-xs text-gray-600 font-medium cursor-pointer">
                 <input
                   type="checkbox"
+                  required
                   checked={formData.privacyAgree}
                   onChange={(e) => setFormData({ ...formData, privacyAgree: e.target.checked })}
                   className="rounded text-[#176B52] focus:ring-[#176B52]"
                 />
-                <span>개인정보 수집 및 이용 안내에 동의합니다 (시연용)</span>
+                <span>개인정보 수집 및 이용 안내에 동의합니다.</span>
               </label>
             </div>
 
             <button
               type="submit"
-              className="w-full py-4 bg-[#176B52] hover:bg-[#0D4938] text-white font-extrabold text-sm sm:text-base rounded-2xl shadow hover:shadow-lg transition-all flex items-center justify-center gap-2"
+              disabled={isSubmitting}
+              className="w-full py-4 bg-[#176B52] hover:bg-[#0D4938] text-white font-extrabold text-sm sm:text-base rounded-2xl shadow hover:shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50"
             >
-              <Send className="w-4 h-4" />
-              <span>회원가입 신청 제출 (시연)</span>
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <span>신청서 제출 중...</span>
+                </>
+              ) : (
+                <>
+                  <Send className="w-4 h-4" />
+                  <span>회원가입 신청서 제출하기</span>
+                </>
+              )}
             </button>
           </form>
         )}
