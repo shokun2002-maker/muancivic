@@ -2,7 +2,8 @@
 
 import React, { useState } from "react";
 import SubHero from "@/components/SubHero";
-import { Heart, ShieldAlert, CheckCircle2, CreditCard, Landmark } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
+import { Heart, ShieldAlert, CheckCircle2, CreditCard, Landmark, Loader2, X } from "lucide-react";
 
 export default function DonatePage() {
   const [donateType, setDonateType] = useState<"monthly" | "once">("monthly");
@@ -10,10 +11,64 @@ export default function DonatePage() {
   const [customAmount, setCustomAmount] = useState<string>("");
   const [isCustom, setIsCustom] = useState(false);
 
+  const [modalOpen, setModalOpen] = useState(false);
+  const [donorName, setDonorName] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+
   const presetAmounts = [10000, 20000, 30000, 50000];
 
-  const handleDonateSample = () => {
-    alert("후원 신청 시연 안내: 현재는 UI 시연 단계이며 실제 결제는 연결되어 있지 않습니다. 추후 PG 전자결제 및 계좌 연결 시 정식 운영됩니다.");
+  const getFinalAmount = (): number => {
+    if (isCustom) {
+      return Number(customAmount) || 0;
+    }
+    return amount;
+  };
+
+  const handleOpenModal = () => {
+    const finalAmt = getFinalAmount();
+    if (finalAmt <= 0) {
+      alert("올바른 후원 금액을 입력해 주세요.");
+      return;
+    }
+    setModalOpen(true);
+  };
+
+  const handleSubmitDonation = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!donorName.trim()) {
+      alert("후원자 성명을 입력해 주세요.");
+      return;
+    }
+    if (isSubmitting) return;
+
+    setIsSubmitting(true);
+    try {
+      const supabase = createClient();
+      if (!supabase) {
+        throw new Error("Supabase 클라이언트가 초기화되지 않았습니다.");
+      }
+
+      const finalAmt = getFinalAmount();
+      const { error } = await supabase.from("donations").insert({
+        donor_name: donorName.trim(),
+        donation_type: donateType === "monthly" ? "정기후원" : "일시후원",
+        amount: finalAmt,
+        status: "신청",
+      });
+
+      if (error) throw error;
+
+      setModalOpen(false);
+      setSubmitted(true);
+    } catch (err) {
+      console.error("Donation submission error:", err);
+      const errMsg =
+        err instanceof Error ? err.message : "후원 신청 중 오류가 발생했습니다.";
+      alert(errMsg);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -79,109 +134,195 @@ export default function DonatePage() {
           </div>
         </div>
 
-        {/* 2. Donation Form Simulator Box */}
-        <div className="bg-white rounded-3xl p-8 sm:p-10 border border-gray-200/80 shadow-sm space-y-8">
-          {/* Donation Type Selector */}
-          <div>
-            <label className="block text-xs font-bold text-gray-700 mb-3">
-              1. 후원 방식 선택
-            </label>
-            <div className="grid grid-cols-2 gap-4">
-              <button
-                type="button"
-                onClick={() => setDonateType("monthly")}
-                className={`py-4 px-4 rounded-2xl font-extrabold text-sm transition-all border ${
-                  donateType === "monthly"
-                    ? "bg-[#176B52] text-white border-[#176B52] shadow-md"
-                    : "bg-gray-50 text-gray-700 border-gray-200"
-                }`}
-              >
-                정기후원 (매월 자동후원)
-              </button>
-              <button
-                type="button"
-                onClick={() => setDonateType("once")}
-                className={`py-4 px-4 rounded-2xl font-extrabold text-sm transition-all border ${
-                  donateType === "once"
-                    ? "bg-[#176B52] text-white border-[#176B52] shadow-md"
-                    : "bg-gray-50 text-gray-700 border-gray-200"
-                }`}
-              >
-                일시후원 (1회 후원)
-              </button>
-            </div>
+        {submitted ? (
+          <div className="bg-white rounded-3xl p-10 border border-[#176B52] text-center space-y-4 shadow-lg">
+            <CheckCircle2 className="w-16 h-16 text-[#176B52] mx-auto" />
+            <h3 className="text-2xl font-extrabold text-[#222222]">
+              소중한 후원 약정 신청이 접수되었습니다!
+            </h3>
+            <p className="text-sm text-gray-600 max-w-md mx-auto leading-relaxed">
+              시민연대 후원 약정에 참여해 주셔서 진심으로 감사드립니다. 담당자 확인 후 안내 연락을 드리겠습니다.
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                setSubmitted(false);
+                setDonorName("");
+              }}
+              className="px-6 py-2.5 bg-[#176B52] text-white font-bold text-xs rounded-xl shadow hover:bg-[#0D4938] transition-colors"
+            >
+              확인
+            </button>
           </div>
-
-          {/* Amount Selector */}
-          <div>
-            <label className="block text-xs font-bold text-gray-700 mb-3">
-              2. 후원 금액 선택
-            </label>
-            <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-3">
-              {presetAmounts.map((amt) => (
+        ) : (
+          /* 2. Donation Form Box */
+          <div className="bg-white rounded-3xl p-8 sm:p-10 border border-gray-200/80 shadow-sm space-y-8">
+            {/* Donation Type Selector */}
+            <div>
+              <label className="block text-xs font-bold text-gray-700 mb-3">
+                1. 후원 방식 선택
+              </label>
+              <div className="grid grid-cols-2 gap-4">
                 <button
-                  key={amt}
                   type="button"
-                  onClick={() => {
-                    setAmount(amt);
-                    setIsCustom(false);
-                  }}
+                  onClick={() => setDonateType("monthly")}
+                  className={`py-4 px-4 rounded-2xl font-extrabold text-sm transition-all border ${
+                    donateType === "monthly"
+                      ? "bg-[#176B52] text-white border-[#176B52] shadow-md"
+                      : "bg-gray-50 text-gray-700 border-gray-200"
+                  }`}
+                >
+                  정기후원 (매월 자동후원)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setDonateType("once")}
+                  className={`py-4 px-4 rounded-2xl font-extrabold text-sm transition-all border ${
+                    donateType === "once"
+                      ? "bg-[#176B52] text-white border-[#176B52] shadow-md"
+                      : "bg-gray-50 text-gray-700 border-gray-200"
+                  }`}
+                >
+                  일시후원 (1회 후원)
+                </button>
+              </div>
+            </div>
+
+            {/* Amount Selector */}
+            <div>
+              <label className="block text-xs font-bold text-gray-700 mb-3">
+                2. 후원 금액 선택
+              </label>
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-3">
+                {presetAmounts.map((amt) => (
+                  <button
+                    key={amt}
+                    type="button"
+                    onClick={() => {
+                      setAmount(amt);
+                      setIsCustom(false);
+                    }}
+                    className={`py-3 px-3 rounded-xl font-bold text-xs sm:text-sm transition-all border ${
+                      !isCustom && amount === amt
+                        ? "bg-[#F2B544] text-[#0D4938] border-[#F2B544] shadow"
+                        : "bg-gray-50 text-gray-700 border-gray-200"
+                    }`}
+                  >
+                    {amt.toLocaleString()}원
+                  </button>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => setIsCustom(true)}
                   className={`py-3 px-3 rounded-xl font-bold text-xs sm:text-sm transition-all border ${
-                    !isCustom && amount === amt
+                    isCustom
                       ? "bg-[#F2B544] text-[#0D4938] border-[#F2B544] shadow"
                       : "bg-gray-50 text-gray-700 border-gray-200"
                   }`}
                 >
-                  {amt.toLocaleString()}원
+                  직접입력
                 </button>
-              ))}
+              </div>
+
+              {isCustom && (
+                <div className="mt-2">
+                  <input
+                    type="number"
+                    placeholder="후원하실 금액을 입력해 주세요 (원)"
+                    value={customAmount}
+                    onChange={(e) => setCustomAmount(e.target.value)}
+                    className="w-full px-4 py-3 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#176B52]"
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Action Button */}
+            <div className="pt-4 border-t border-gray-100 space-y-3">
               <button
                 type="button"
-                onClick={() => setIsCustom(true)}
-                className={`py-3 px-3 rounded-xl font-bold text-xs sm:text-sm transition-all border ${
-                  isCustom
-                    ? "bg-[#F2B544] text-[#0D4938] border-[#F2B544] shadow"
-                    : "bg-gray-50 text-gray-700 border-gray-200"
-                }`}
+                onClick={handleOpenModal}
+                className="w-full py-4 bg-[#176B52] hover:bg-[#0D4938] text-white font-extrabold text-base rounded-2xl shadow hover:shadow-lg transition-all flex items-center justify-center gap-2"
               >
-                직접입력
+                <CreditCard className="w-5 h-5" />
+                <span>
+                  {donateType === "monthly" ? "정기후원" : "일시후원"}{" "}
+                  {getFinalAmount() > 0
+                    ? `${getFinalAmount().toLocaleString()}원`
+                    : "금액미정"}{" "}
+                  약정 신청하기
+                </span>
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Donor Information Input Modal */}
+      {modalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden border border-gray-100 p-6 space-y-6">
+            <div className="flex items-center justify-between pb-3 border-b border-gray-100">
+              <h3 className="text-base font-extrabold text-gray-900">
+                후원자 정보 입력
+              </h3>
+              <button
+                type="button"
+                onClick={() => setModalOpen(false)}
+                className="p-1 text-gray-400 hover:text-gray-700 rounded-full"
+              >
+                <X className="w-5 h-5" />
               </button>
             </div>
 
-            {isCustom && (
-              <div className="mt-2">
+            <form onSubmit={handleSubmitDonation} className="space-y-4">
+              <div className="p-3 bg-rose-50 rounded-xl border border-rose-100 text-xs font-semibold text-rose-800">
+                신청 내용: {donateType === "monthly" ? "정기후원" : "일시후원"} /{" "}
+                {getFinalAmount().toLocaleString()}원
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-1.5">
+                  후원자 성명 <span className="text-red-500">*</span>
+                </label>
                 <input
-                  type="number"
-                  placeholder="후원하실 금액을 입력해 주세요 (원)"
-                  value={customAmount}
-                  onChange={(e) => setCustomAmount(e.target.value)}
-                  className="w-full px-4 py-3 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#176B52]"
+                  type="text"
+                  required
+                  value={donorName}
+                  onChange={(e) => setDonorName(e.target.value)}
+                  placeholder="예: 홍길동"
+                  className="w-full px-4 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#176B52]"
                 />
               </div>
-            )}
-          </div>
 
-          {/* Action Button */}
-          <div className="pt-4 border-t border-gray-100 space-y-3">
-            <button
-              type="button"
-              onClick={handleDonateSample}
-              className="w-full py-4 bg-[#176B52] hover:bg-[#0D4938] text-white font-extrabold text-base rounded-2xl shadow hover:shadow-lg transition-all flex items-center justify-center gap-2"
-            >
-              <CreditCard className="w-5 h-5" />
-              <span>
-                {donateType === "monthly" ? "정기후원" : "일시후원"}{" "}
-                {isCustom ? (customAmount ? `${Number(customAmount).toLocaleString()}원` : "금액미정") : `${amount.toLocaleString()}원`} 신청하기 (시연)
-              </span>
-            </button>
-
-            <p className="text-center text-xs font-bold text-amber-700 bg-amber-50 p-3 rounded-xl border border-amber-200 flex items-center justify-center gap-1.5">
-              <ShieldAlert className="w-4 h-4 text-amber-600" />
-              <span>현재는 후원 UI 시연 화면이며 실제 결제는 이루어지지 않습니다.</span>
-            </p>
+              <div className="pt-2 flex items-center justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setModalOpen(false)}
+                  disabled={isSubmitting}
+                  className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs rounded-xl"
+                >
+                  취소
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="px-5 py-2 bg-[#176B52] hover:bg-[#0D4938] text-white font-bold text-xs rounded-xl shadow flex items-center gap-1.5 disabled:opacity-50"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      <span>신청 중...</span>
+                    </>
+                  ) : (
+                    <span>후원 약정 신청완료</span>
+                  )}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

@@ -54,3 +54,8 @@ export const canManageInquiries = (role: AdminRole): boolean => {
     role === AdminRole.member_admin
   );
 };
+
+export const canManageDonations = (role: AdminRole): boolean => {
+  // super_admin and operator can manage donations
+  return role === AdminRole.super_admin || role === AdminRole.operator;
+};
