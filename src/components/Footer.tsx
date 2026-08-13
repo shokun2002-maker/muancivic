@@ -182,7 +182,17 @@ export default function Footer() {
           </div>
 
           <div className="text-center sm:text-right space-y-0.5">
-            <p className="font-medium text-emerald-200/80">제작·서비스: 글로컬소프트</p>
+            <p className="font-medium text-emerald-200/80">
+              제작·서비스:{" "}
+              <a
+                href="https://glocalsoft.kr/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-white underline underline-offset-2 transition-colors"
+              >
+                글로컬소프트
+              </a>
+            </p>
             <p>본 사이트는 시민주권 수호를 위한 비영리 독자 운영 플랫폼입니다.</p>
           </div>
         </div>

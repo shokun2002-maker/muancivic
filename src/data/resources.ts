@@ -17,6 +17,7 @@ export interface PolicyResource {
   fileFormat: string; // e.g. "PDF"
   fileSize: string; // e.g. "3.2 MB"
   hasFile: boolean;
+  fileUrl?: string;
   contentBody?: string[];
 }
 

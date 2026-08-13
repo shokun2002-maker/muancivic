@@ -34,6 +34,7 @@ function mapDbToPublic(item: ResourceDbRow): PolicyResource {
     fileFormat: "PDF",
     fileSize: "2.5 MB",
     hasFile: !!item.file_url,
+    fileUrl: item.file_url || undefined,
     contentBody: item.summary ? [item.summary] : [],
   };
 }

@@ -38,12 +38,6 @@ export default function ResourcesListPage() {
     return matchesCategory && matchesSearch;
   });
 
-  const handleDownloadSample = (title: string, e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    alert(`'${title}' 파일 다운로드 시연입니다. (실제 첨부파일 연동 예정)`);
-  };
-
   return (
     <div>
       {/* Sub Hero */}
@@ -59,58 +53,59 @@ export default function ResourcesListPage() {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        {/* Title Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 pb-6 border-b border-gray-200">
-          <div>
-            <div className="inline-flex items-center gap-1.5 text-xs font-bold text-[#176B52] uppercase tracking-wider mb-2">
-              <BookOpen className="w-4 h-4" />
-              POLICY RESEARCH & RESOURCES
-            </div>
-            <h2 className="text-2xl sm:text-4xl font-extrabold text-[#222222]">
-              정책자료실
-            </h2>
-            <p className="text-sm sm:text-base text-[#666666] mt-2 font-medium">
-              자료를 공개하고, 정보를 나누고, 시민과 함께 대안을 찾습니다.
-            </p>
-          </div>
+        {/* Header Title */}
+        <div className="text-center max-w-2xl mx-auto mb-12">
+          <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#176B52]/10 text-[#176B52] text-xs font-extrabold tracking-wider uppercase mb-3">
+            <BookOpen className="w-4 h-4" />
+            POLICY & RESEARCH ARCHIVE
+          </span>
+          <h2 className="text-3xl font-extrabold text-[#222222]">
+            정책자료실
+          </h2>
+          <p className="text-sm text-[#666666] mt-2 font-medium">
+            지역 현안 연구 보고서, 정책 모니터링 자료 및 시민 알 권리를 위한 공공 정보를 공유합니다.
+          </p>
         </div>
 
-        {/* Search & Category Filter Section */}
-        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 mb-10 bg-white p-6 rounded-3xl border border-gray-200/80 shadow-xs">
+        {/* Filter Bar & Search */}
+        <div className="space-y-6 mb-12">
           <FilterBar
             categories={RESOURCE_CATEGORIES}
             activeCategory={activeCategory}
             onSelectCategory={setActiveCategory}
           />
-          <SearchInput
-            value={searchQuery}
-            onChange={setSearchQuery}
-            placeholder="자료 제목, 키워드, 출처 검색..."
-          />
+
+          <div className="max-w-md mx-auto">
+            <SearchInput
+              value={searchQuery}
+              onChange={setSearchQuery}
+              placeholder="자료 제목, 내용, 발행 기관 검색..."
+            />
+          </div>
         </div>
 
-        {/* Loading / Resources Grid */}
+        {/* Resource Cards Grid */}
         {loading ? (
           <div className="flex flex-col items-center justify-center py-20">
             <Loader2 className="w-8 h-8 text-[#176B52] animate-spin mb-2" />
-            <p className="text-xs font-bold text-gray-500">정책 자료를 읽어오고 있습니다...</p>
+            <p className="text-xs font-bold text-gray-500">정책자료를 불러오는 중입니다...</p>
           </div>
         ) : filteredResources.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
             {filteredResources.map((item) => (
               <div
                 key={item.id}
-                className="bg-white rounded-3xl p-6 sm:p-8 border border-gray-200/80 shadow-sm hover:shadow-xl hover:border-[#176B52]/40 transition-all duration-300 flex flex-col justify-between group"
+                className="bg-white rounded-3xl p-8 border border-gray-200/80 shadow-sm hover:shadow-xl hover:border-[#176B52]/40 transition-all duration-300 flex flex-col justify-between group"
               >
                 <div>
-                  <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center justify-between gap-2 mb-4">
                     <CategoryBadge category={item.category} />
-                    <span className="text-xs font-mono font-bold text-gray-500 bg-gray-100 px-2.5 py-1 rounded-md">
-                      {item.fileFormat} | {item.fileSize}
+                    <span className="text-[11px] font-mono text-gray-400 font-semibold">
+                      {item.fileFormat} • {item.fileSize}
                     </span>
                   </div>
 
-                  <h3 className="text-lg sm:text-xl font-bold text-[#222222] group-hover:text-[#176B52] transition-colors leading-snug mb-3">
+                  <h3 className="text-xl font-bold text-[#222222] group-hover:text-[#176B52] transition-colors leading-snug mb-3">
                     {item.title}
                   </h3>
 
@@ -132,14 +127,22 @@ export default function ResourcesListPage() {
                   </div>
 
                   <div className="flex items-center justify-between gap-2 pt-2 border-t border-gray-50">
-                    <button
-                      type="button"
-                      onClick={(e) => handleDownloadSample(item.title, e)}
-                      className="px-3.5 py-2 bg-gray-100 hover:bg-[#176B52] hover:text-white text-gray-700 font-bold text-xs rounded-xl transition-all flex items-center gap-1.5"
-                    >
-                      <Download className="w-3.5 h-3.5" />
-                      <span>자료 다운로드</span>
-                    </button>
+                    {item.fileUrl ? (
+                      <a
+                        href={item.fileUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-3.5 py-2 bg-gray-100 hover:bg-[#176B52] hover:text-white text-gray-700 font-bold text-xs rounded-xl transition-all flex items-center gap-1.5"
+                      >
+                        <Download className="w-3.5 h-3.5" />
+                        <span>자료 다운로드</span>
+                      </a>
+                    ) : (
+                      <span className="px-3.5 py-2 bg-gray-100 text-gray-500 font-bold text-xs rounded-xl flex items-center gap-1.5">
+                        <FileText className="w-3.5 h-3.5" />
+                        <span>첨부자료 준비 중</span>
+                      </span>
+                    )}
 
                     <Link
                       href={`/issues/resources/${item.slug}`}
