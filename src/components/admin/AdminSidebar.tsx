@@ -12,6 +12,7 @@ import {
   Eye,
   BookOpen,
   Camera,
+  Calendar,
   MessageSquare,
   Users,
   Heart,
@@ -80,6 +81,7 @@ export default function AdminSidebar({ mobileOpen, onCloseMobile }: Props) {
       groupName: "미디어 & 소통",
       items: [
         { name: "사진·영상", href: "/admin/media", icon: <Camera className="w-4 h-4" /> },
+        { name: "행사·참여 관리", href: "/admin/events", icon: <Calendar className="w-4 h-4" /> },
         { name: "시민의 목소리", href: "/admin/voices", icon: <MessageSquare className="w-4 h-4" /> },
       ],
     },

@@ -5,49 +5,39 @@ export enum AdminRole {
   member_admin = "member_admin",
 }
 
-/**
- * Returns true if the given role is allowed to manage posts (create, edit, delete).
- * Currently only super_admin and content_admin have full access.
- */
 export const canManagePosts = (role: AdminRole): boolean => {
   return role === AdminRole.super_admin || role === AdminRole.content_admin;
 };
 
-/**
- * Returns true if the given role is allowed to manage issues.
- * Allows super_admin and content_admin.
- */
 export const canManageIssues = (role: AdminRole): boolean => {
   return role === AdminRole.super_admin || role === AdminRole.content_admin;
 };
 
 export const canManageMonitoring = (role: AdminRole): boolean => {
-  // Only super_admin and content_admin can manage monitoring posts
   return role === AdminRole.super_admin || role === AdminRole.content_admin;
 };
 
 export const canManageResources = (role: AdminRole): boolean => {
-  // Only super_admin and content_admin can manage policy resources
   return role === AdminRole.super_admin || role === AdminRole.content_admin;
 };
 
 export const canManageVoices = (role: AdminRole): boolean => {
-  // Only super_admin and content_admin can manage citizen voices
   return role === AdminRole.super_admin || role === AdminRole.content_admin;
 };
 
 export const canManageMedia = (role: AdminRole): boolean => {
-  // Only super_admin and content_admin can manage media albums
+  return role === AdminRole.super_admin || role === AdminRole.content_admin;
+};
+
+export const canManageEvents = (role: AdminRole): boolean => {
   return role === AdminRole.super_admin || role === AdminRole.content_admin;
 };
 
 export const canManageMembers = (role: AdminRole): boolean => {
-  // Only super_admin and member_admin can manage member profiles
   return role === AdminRole.super_admin || role === AdminRole.member_admin;
 };
 
 export const canManageInquiries = (role: AdminRole): boolean => {
-  // super_admin, operator, and member_admin can manage inquiries
   return (
     role === AdminRole.super_admin ||
     role === AdminRole.operator ||
@@ -56,11 +46,9 @@ export const canManageInquiries = (role: AdminRole): boolean => {
 };
 
 export const canManageDonations = (role: AdminRole): boolean => {
-  // super_admin and operator can manage donations
   return role === AdminRole.super_admin || role === AdminRole.operator;
 };
 
 export const canManageSettings = (role: AdminRole): boolean => {
-  // super_admin only for overall admin profile and settings management
   return role === AdminRole.super_admin;
 };

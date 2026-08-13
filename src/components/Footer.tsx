@@ -3,18 +3,22 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { MapPin, Phone, Mail, ArrowUp } from "lucide-react";
+import { MapPin, Phone, Mail, ArrowUp, Info } from "lucide-react";
 
 export default function Footer() {
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  const handleSnsClick = (name: string) => {
+    alert(`무안 자치주권시민연대 공식 ${name} 채널 개설 준비 중입니다.`);
+  };
+
   return (
     <footer className="bg-[#0D4938] text-gray-300 pt-16 pb-12 border-t border-emerald-900/60">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-10 pb-12 border-b border-emerald-800/60">
-          {/* Brand Info & Placeholders (5 cols) */}
+          {/* Brand Info & Notice (5 cols) */}
           <div className="md:col-span-5 space-y-4">
             <div className="flex items-center gap-3">
               <div className="relative h-10 w-auto">
@@ -38,19 +42,15 @@ export default function Footer() {
               시민이 참여하고 시민이 결정하는 무안, 지역 자치주권 수호와 민주적 공동체 발전을 위해 함께 행동합니다.
             </p>
 
-            {/* Address / Phone / Email Placeholders */}
-            <div className="space-y-2 text-xs text-emerald-200/90 pt-2 font-mono">
+            {/* Operating Contact Notice */}
+            <div className="space-y-1.5 text-xs text-emerald-200/90 pt-2 font-mono">
               <div className="flex items-center gap-2">
-                <MapPin className="w-3.5 h-3.5 text-[#F2B544] shrink-0" />
-                <span>주소: 전라남도 무안군 무안읍 (주소 추후 확정)</span>
+                <Info className="w-3.5 h-3.5 text-[#F2B544] shrink-0" />
+                <span>대표 연락처 및 사무실 주소 안내는 정식 개소 일정에 맞춰 공지됩니다.</span>
               </div>
-              <div className="flex items-center gap-2">
-                <Phone className="w-3.5 h-3.5 text-[#F2B544] shrink-0" />
-                <span>대표전화: 061-000-0000 (추후 확정)</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Mail className="w-3.5 h-3.5 text-[#F2B544] shrink-0" />
-                <span>이메일: contact@muancivic.or.kr (추후 확정)</span>
+              <div className="flex items-center gap-2 text-emerald-300/80 text-[11px]">
+                <Mail className="w-3 h-3 text-emerald-400 shrink-0" />
+                <span>1:1 문의 및 비밀제보는 [함께하기 &gt; 문의·제보] 메뉴를 이용해 주세요.</span>
               </div>
             </div>
           </div>
@@ -120,35 +120,39 @@ export default function Footer() {
               <h4 className="text-xs font-bold text-[#F2B544] uppercase tracking-wider mb-4 md:text-right">
                 소통 채널 (SNS)
               </h4>
-              <div className="flex items-center gap-3">
-                <a
-                  href="#sns-blog"
-                  className="w-9 h-9 rounded-full bg-emerald-800/80 hover:bg-[#F2B544] hover:text-[#0D4938] text-white flex items-center justify-center transition-colors text-xs font-bold"
-                  aria-label="네이버 블로그"
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleSnsClick("네이버 블로그")}
+                  className="px-2.5 py-1.5 rounded-lg bg-emerald-800/80 hover:bg-[#F2B544] hover:text-[#0D4938] text-white transition-colors text-xs font-bold"
+                  title="공식 블로그 준비 중"
                 >
                   블로그
-                </a>
-                <a
-                  href="#sns-youtube"
-                  className="w-9 h-9 rounded-full bg-emerald-800/80 hover:bg-[#F2B544] hover:text-[#0D4938] text-white flex items-center justify-center transition-colors text-xs font-bold"
-                  aria-label="유튜브"
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleSnsClick("유튜브")}
+                  className="px-2.5 py-1.5 rounded-lg bg-emerald-800/80 hover:bg-[#F2B544] hover:text-[#0D4938] text-white transition-colors text-xs font-bold"
+                  title="공식 유튜브 준비 중"
                 >
                   유튜브
-                </a>
-                <a
-                  href="#sns-facebook"
-                  className="w-9 h-9 rounded-full bg-emerald-800/80 hover:bg-[#F2B544] hover:text-[#0D4938] text-white flex items-center justify-center transition-colors text-xs font-bold"
-                  aria-label="페이스북"
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleSnsClick("페이스북")}
+                  className="px-2.5 py-1.5 rounded-lg bg-emerald-800/80 hover:bg-[#F2B544] hover:text-[#0D4938] text-white transition-colors text-xs font-bold"
+                  title="공식 페이스북 준비 중"
                 >
                   FB
-                </a>
-                <a
-                  href="#sns-kakao"
-                  className="w-9 h-9 rounded-full bg-emerald-800/80 hover:bg-[#F2B544] hover:text-[#0D4938] text-white flex items-center justify-center transition-colors text-xs font-bold"
-                  aria-label="카카오톡 채널"
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleSnsClick("카카오톡")}
+                  className="px-2.5 py-1.5 rounded-lg bg-emerald-800/80 hover:bg-[#F2B544] hover:text-[#0D4938] text-white transition-colors text-xs font-bold"
+                  title="공식 카카오톡 채널 준비 중"
                 >
                   카카오
-                </a>
+                </button>
               </div>
             </div>
 

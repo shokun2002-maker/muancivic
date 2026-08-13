@@ -130,7 +130,7 @@ export default function Header() {
               </button>
 
               <Link
-                href="#join"
+                href="/join"
                 className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#176B52] hover:bg-[#0D4938] text-white text-[14px] font-semibold rounded-lg shadow-sm hover:shadow transition-all active:scale-[0.98]"
               >
                 <Heart className="w-4 h-4 fill-white/20" />
@@ -199,7 +199,7 @@ export default function Header() {
 
               <div className="pt-4 flex flex-col gap-2">
                 <Link
-                  href="#join"
+                  href="/join"
                   onClick={() => setMobileMenuOpen(false)}
                   className="w-full text-center py-3 bg-[#176B52] text-white font-bold rounded-lg shadow"
                 >
