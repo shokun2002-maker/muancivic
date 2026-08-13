@@ -3,7 +3,7 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { MapPin, Phone, Mail, ArrowUp, Info } from "lucide-react";
+import { ArrowUp, Info, Mail, Lock } from "lucide-react";
 
 export default function Footer() {
   const scrollToTop = () => {
@@ -167,10 +167,24 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Footer Bottom Copyright */}
+        {/* Footer Bottom Copyright & Provider Info */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-[11px] text-emerald-200/60 gap-4">
-          <p>© 2026 무안 자치주권시민연대. All rights reserved.</p>
-          <p>본 사이트는 시민주권 수호를 위한 비영리 독자 운영 플랫폼입니다.</p>
+          <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 sm:gap-3">
+            <p>© 2026 무안 자치주권시민연대. All rights reserved.</p>
+            <span className="hidden sm:inline text-emerald-800/80">•</span>
+            <Link
+              href="/admin/login"
+              className="inline-flex items-center gap-1 text-emerald-300/70 hover:text-emerald-100 transition-colors text-[11px] font-medium hover:underline"
+            >
+              <Lock className="w-3 h-3 text-emerald-400/80" />
+              <span>관리자 로그인</span>
+            </Link>
+          </div>
+
+          <div className="text-center sm:text-right space-y-0.5">
+            <p className="font-medium text-emerald-200/80">제작·서비스: 글로컬소프트</p>
+            <p>본 사이트는 시민주권 수호를 위한 비영리 독자 운영 플랫폼입니다.</p>
+          </div>
         </div>
       </div>
     </footer>
