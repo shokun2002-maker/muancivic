@@ -1,13 +1,14 @@
 "use client";
 
-import React, { use } from "react";
+import React, { use, useState, useEffect } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import SubHero from "@/components/SubHero";
 import CategoryBadge from "@/components/CategoryBadge";
 import ShareButtons from "@/components/ShareButtons";
-import { RESOURCES_DATA } from "@/data/resources";
-import { ChevronLeft, Calendar, Building2, Download, FileText, BookOpen } from "lucide-react";
+import { getPublishedResourceBySlug } from "@/lib/data/resources";
+import { PolicyResource } from "@/data/resources";
+import { ChevronLeft, Calendar, Building2, Download, FileText, BookOpen, Loader2 } from "lucide-react";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -15,10 +16,35 @@ interface Props {
 
 export default function ResourceDetailPage({ params }: Props) {
   const { slug } = use(params);
-  const resource = RESOURCES_DATA.find((item) => item.slug === slug);
+  const [resource, setResource] = useState<PolicyResource | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [notFoundTriggered, setNotFoundTriggered] = useState(false);
 
-  if (!resource) {
+  useEffect(() => {
+    async function loadData() {
+      setLoading(true);
+      const data = await getPublishedResourceBySlug(slug);
+      if (!data) {
+        setNotFoundTriggered(true);
+      } else {
+        setResource(data);
+      }
+      setLoading(false);
+    }
+    loadData();
+  }, [slug]);
+
+  if (notFoundTriggered) {
     notFound();
+  }
+
+  if (loading || !resource) {
+    return (
+      <div className="flex flex-col items-center justify-center py-32 min-h-[60vh]">
+        <Loader2 className="w-8 h-8 text-[#176B52] animate-spin mb-2" />
+        <p className="text-xs font-bold text-gray-500">정책자료를 읽어오고 있습니다...</p>
+      </div>
+    );
   }
 
   return (

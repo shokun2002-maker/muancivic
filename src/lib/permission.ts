@@ -25,3 +25,8 @@ export const canManageMonitoring = (role: AdminRole): boolean => {
   // Only super_admin and content_admin can manage monitoring posts
   return role === AdminRole.super_admin || role === AdminRole.content_admin;
 };
+
+export const canManageResources = (role: AdminRole): boolean => {
+  // Only super_admin and content_admin can manage policy resources
+  return role === AdminRole.super_admin || role === AdminRole.content_admin;
+};
