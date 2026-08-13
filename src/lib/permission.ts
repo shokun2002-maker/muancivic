@@ -12,3 +12,11 @@ export enum AdminRole {
 export const canManagePosts = (role: AdminRole): boolean => {
   return role === AdminRole.super_admin || role === AdminRole.content_admin;
 };
+
+/**
+ * Returns true if the given role is allowed to manage issues.
+ * Allows super_admin and content_admin.
+ */
+export const canManageIssues = (role: AdminRole): boolean => {
+  return role === AdminRole.super_admin || role === AdminRole.content_admin;
+};

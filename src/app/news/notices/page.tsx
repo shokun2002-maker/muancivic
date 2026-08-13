@@ -6,7 +6,7 @@ import SubHero from "@/components/SubHero";
 import SearchInput from "@/components/SearchInput";
 import CategoryBadge from "@/components/CategoryBadge";
 import { getLatestNotices } from "@/lib/data/posts";
-import type { NoticePost } from "@/data/notices";
+import { NoticePost } from "@/data/notices";
 import { Bell, Eye, Calendar, ChevronRight } from "lucide-react";
 
 export default function NoticesListPage() {
