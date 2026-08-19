@@ -9,7 +9,7 @@ function mapDbToPublic(item: MediaAlbumDbRow, items?: MediaItemDbRow[]): MediaAl
     return isNaN(d.getTime()) ? "" : d.toISOString().split("T")[0].replace(/-/g, ".");
   };
 
-  const coverImage = item.thumbnail_url || "/inaugural_assembly.jpg";
+  const coverImage = item.thumbnail_url || "/images/placeholders/media-default.svg";
   const photoList = items && items.length > 0
     ? items.map((i) => i.file_url).filter((url): url is string => !!url)
     : [coverImage];

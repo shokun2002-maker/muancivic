@@ -37,7 +37,7 @@ export const ISSUES_DATA: IssueArticle[] = [
     category: "군공항",
     status: "논의 중",
     summary: "군공항 이전이 무안의 미래와 주민 생활에 미칠 영향을 시민의 관점에서 살펴봅니다.",
-    coverImage: "/inaugural_assembly.jpg",
+    coverImage: "/images/placeholders/issue-default.svg",
     overview: [
       "광주 군공항 이전 문제는 무안의 미래와 지역 발전 방향에 큰 영향을 미칠 수 있는 중대한 현안입니다.",
       "군공항 이전 여부뿐만 아니라 지역 주민의 생활환경과 재산권, 지역경제, 무안국제공항 활성화 등 다양한 문제를 함께 고려해야 합니다.",
@@ -82,7 +82,7 @@ export const ISSUES_DATA: IssueArticle[] = [
     category: "주민건강",
     status: "대응 중",
     summary: "주민 건강권과 환경권 보호를 중심으로 관련 절차와 정보를 살펴봅니다.",
-    coverImage: "/inaugural_assembly.jpg",
+    coverImage: "/images/placeholders/issue-default.svg",
     overview: [
       "의료폐기물 처리시설은 주민 건강과 생활환경에 직접적인 영향을 미칠 수 있는 시설인 만큼 사업 추진 과정에서 주민의 알 권리와 참여권이 충분히 보장되어야 합니다.",
     ],
@@ -120,7 +120,7 @@ export const ISSUES_DATA: IssueArticle[] = [
     category: "재산권",
     status: "관심 현안",
     summary: "송전선로 건설 과정에서 주민의 생활권과 재산권, 의견수렴 절차를 살펴봅니다.",
-    coverImage: "/inaugural_assembly.jpg",
+    coverImage: "/images/placeholders/issue-default.svg",
     overview: [
       "고압 송전선로 건설은 국가적인 전력망 구축과 관련된 사업이지만 노선이 통과하는 지역 주민에게는 생활환경과 경관, 재산권 등 다양한 영향을 줄 수 있습니다.",
     ],
@@ -158,7 +158,7 @@ export const ISSUES_DATA: IssueArticle[] = [
     category: "환경",
     status: "상시 모니터링",
     summary: "무안의 자연환경과 주민 생활을 고려한 지속가능한 지역개발을 고민합니다.",
-    coverImage: "/inaugural_assembly.jpg",
+    coverImage: "/images/placeholders/issue-default.svg",
     overview: [
       "지역 발전을 위한 개발은 필요하지만 자연환경과 주민 생활을 훼손하면서까지 추진되어서는 안 됩니다.",
       "무안의 농촌과 갯벌, 해안, 산림 등은 지역 주민의 삶과 지역의 미래를 구성하는 중요한 자산입니다.",

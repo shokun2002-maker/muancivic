@@ -31,7 +31,7 @@ export async function getPublishedIssues(): Promise<IssueArticle[]> {
       status: item.status,
       statusBadgeColor: "bg-emerald-50 text-[#176B52] border-[#176B52]/30",
       summary: item.summary,
-      coverImage: item.thumbnail_url || "/inaugural_assembly.jpg",
+      coverImage: item.thumbnail_url || "/images/placeholders/issue-default.svg",
       overview: item.overview ? [item.overview] : [],
       currentStatus: item.current_situation ? [item.current_situation] : [],
       keyPoints: item.key_points ? item.key_points.split("\n") : [],

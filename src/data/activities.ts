@@ -43,7 +43,7 @@ export const ACTIVITIES_DATA: ActivityPost[] = [
     category: "발기인대회",
     summary:
       "무안 승달문화예술회관에서 군민들과 함께 시민연대 결성 배경과 추진 경과를 공유하고 창립 준비위원회를 공식 구성했습니다.",
-    coverImage: "/inaugural_assembly.jpg",
+    coverImage: "/images/placeholders/post-default.svg",
     isSample: true,
     content: [
       "무안 자치주권시민연대 준비위원회는 2026년 5월 6일 발기인대회를 열고 조직의 목적과 기본 방향을 군민들에게 안내했습니다.",
@@ -59,7 +59,7 @@ export const ACTIVITIES_DATA: ActivityPost[] = [
     category: "민생포럼",
     summary:
       "전남서부권 민생포럼에 참가하여 군공항 이전 현안이 무안 지역 사회와 경제에 미치는 영향에 대한 객관적 연구를 발제했습니다.",
-    coverImage: "/inaugural_assembly.jpg",
+    coverImage: "/images/placeholders/post-default.svg",
     isSample: true,
     content: [
       "전남서부권 민생포럼 현장에서 『군 공항 이전과 무안의 미래』 주제 발제를 진행했습니다.",
@@ -74,7 +74,7 @@ export const ACTIVITIES_DATA: ActivityPost[] = [
     category: "연대협력",
     summary:
       "서남권 지역 시민사회 간의 굳건한 연대와 공동 지역 현안 대응 체계를 구축하기 위해 목포 시민연대와 간담회를 가졌습니다.",
-    coverImage: "/inaugural_assembly.jpg",
+    coverImage: "/images/placeholders/post-default.svg",
     isSample: true,
     content: [
       "목포 지역 시민사회 단체와 함께 서남권 상생 발전 및 환경·교통 분야의 연대 협력 방안을 논의했습니다.",
@@ -89,7 +89,7 @@ export const ACTIVITIES_DATA: ActivityPost[] = [
     category: "위원회",
     summary:
       "지역 내 청년 정주 여건 개선 및 여성 권익 옹호를 위한 8개 전문 분과위원회가 본격적인 현장 모니터링에 착수했습니다.",
-    coverImage: "/inaugural_assembly.jpg",
+    coverImage: "/images/placeholders/post-default.svg",
     isSample: true,
     content: [
       "집행위원회 산하 청년위원회와 여성위원회가 첫 분과 회의를 열고 상반기 주요 과제를 확정했습니다.",

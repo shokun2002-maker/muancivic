@@ -29,7 +29,7 @@ export async function getLatestActivities(): Promise<ActivityPost[]> {
         : "",
       category: item.category || "활동소식",
       summary: item.summary || "",
-      coverImage: item.thumbnail_url || "/inaugural_assembly.jpg",
+      coverImage: item.thumbnail_url || "/images/placeholders/post-default.svg",
       content: item.content ? item.content.split("\n\n") : [],
       isFeatured: idx === 0,
     }));
