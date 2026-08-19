@@ -116,11 +116,11 @@ export default function IssueForm({ initialData, onSubmit, onCancel }: IssueForm
       status: status.trim() || "대응 중",
       visibility: visibility.trim() || "published",
       summary: summary.trim(),
-      overview: overview.trim() || undefined,
-      current_situation: currentSituation.trim() || undefined,
-      key_points: keyPoints.trim() || undefined,
-      position_text: positionText.trim() || undefined,
-      thumbnail_url: thumbnail.trim() || undefined,
+      overview: overview.trim() || null,
+      current_situation: currentSituation.trim() || null,
+      key_points: keyPoints.trim() || null,
+      position_text: positionText.trim() || null,
+      thumbnail_url: thumbnail.trim() ? thumbnail.trim() : null,
       published_at: publishedAt ? new Date(publishedAt).toISOString() : new Date().toISOString(),
     } as Omit<Issue, "id" | "created_at" | "updated_at">;
 

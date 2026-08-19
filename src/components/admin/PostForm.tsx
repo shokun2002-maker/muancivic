@@ -101,6 +101,7 @@ export default function PostForm({
     if (!validate()) return;
 
     const payload = { ...form } as any;
+    payload.thumbnail_url = payload.thumbnail_url?.trim() ? payload.thumbnail_url.trim() : null;
     if (payload.status === "published" && !payload.published_at) {
       payload.published_at = new Date().toISOString();
     } else if (payload.status !== "published") {

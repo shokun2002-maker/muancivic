@@ -15,7 +15,7 @@ export interface Issue {
   current_situation?: string;
   key_points?: string;
   position_text?: string;
-  thumbnail_url?: string;
+  thumbnail_url?: string | null;
   published_at: string; // ISO timestamp
   created_at: string;
   updated_at: string;
