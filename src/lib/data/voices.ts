@@ -22,9 +22,11 @@ function normalizeVoiceStatus(st: string): VoiceStatus {
   const allowed: VoiceStatus[] = [
     "접수",
     "검토 중",
+    "처리 중",
+    "답변 완료",
+    "답변완료",
     "공론화",
     "정책제안",
-    "답변완료",
   ];
   return allowed.includes(st as VoiceStatus) ? (st as VoiceStatus) : "접수";
 }
@@ -46,6 +48,9 @@ function mapDbToPublic(item: VoiceDbRow): CitizenVoice {
     status: normalizeVoiceStatus(item.status),
     date: formatDate(item.created_at),
     author: item.author_name || "군민",
+    adminAnswer: item.admin_answer || undefined,
+    answeredAt: formatDate(item.answered_at),
+    assignedDepartment: item.assigned_department || undefined,
     isSample: false,
   };
 }

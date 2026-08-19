@@ -25,7 +25,7 @@ const CATEGORY_OPTIONS = [
   "기타",
 ];
 
-const STATUS_OPTIONS = ["접수", "검토 중", "공론화", "정책제안", "답변완료"];
+const STATUS_OPTIONS = ["접수", "검토 중", "처리 중", "답변 완료", "공론화", "정책제안"];
 
 export default function VoiceForm({
   initialData,
@@ -40,6 +40,13 @@ export default function VoiceForm({
   const [status, setStatus] = useState(initialData?.status ?? "접수");
   const [likesCount, setLikesCount] = useState(initialData?.likes_count ?? 0);
   const [isPublic, setIsPublic] = useState(initialData?.is_public ?? true);
+  const [adminAnswer, setAdminAnswer] = useState(initialData?.admin_answer ?? "");
+  const [answeredAt, setAnsweredAt] = useState(
+    initialData?.answered_at ? initialData.answered_at.slice(0, 10) : ""
+  );
+  const [assignedDepartment, setAssignedDepartment] = useState(
+    initialData?.assigned_department ?? ""
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Auto-generate slug from title in create mode
@@ -49,11 +56,27 @@ export default function VoiceForm({
     }
   }, [title, initialData]);
 
+  // Auto-set answered_at when changing status to '답변 완료' or '답변완료' if answer exists and date is empty
+  const handleStatusChange = (newStatus: string) => {
+    setStatus(newStatus);
+    if (
+      (newStatus === "답변 완료" || newStatus === "답변완료") &&
+      !answeredAt
+    ) {
+      setAnsweredAt(new Date().toISOString().slice(0, 10));
+    }
+  };
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (isSubmitting) return;
 
     setIsSubmitting(true);
+    let finalAnsweredAt: string | null = answeredAt ? new Date(answeredAt).toISOString() : null;
+    if ((status === "답변 완료" || status === "답변완료") && adminAnswer.trim() && !finalAnsweredAt) {
+      finalAnsweredAt = new Date().toISOString();
+    }
+
     const payload: Omit<VoiceDbRow, "id" | "created_at" | "updated_at"> = {
       title: title.trim(),
       slug: slug.trim(),
@@ -63,6 +86,9 @@ export default function VoiceForm({
       status: status.trim() || "접수",
       likes_count: Number(likesCount) || 0,
       is_public: isPublic,
+      admin_answer: adminAnswer.trim() || null,
+      answered_at: finalAnsweredAt,
+      assigned_department: assignedDepartment.trim() || null,
     };
 
     try {
@@ -148,7 +174,7 @@ export default function VoiceForm({
           </label>
           <select
             value={status}
-            onChange={(e) => setStatus(e.target.value)}
+            onChange={(e) => handleStatusChange(e.target.value)}
             className="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 focus:ring-2 focus:ring-[#176B52] focus:outline-none text-sm"
           >
             {STATUS_OPTIONS.map((st) => (
@@ -190,10 +216,57 @@ export default function VoiceForm({
             value={content}
             onChange={(e) => setContent(e.target.value)}
             required
-            rows={5}
+            rows={4}
             placeholder="주민의 제안 내용 및 상세 의견을 입력하세요"
             className="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 focus:ring-2 focus:ring-[#176B52] focus:outline-none text-sm"
           />
+        </div>
+
+        {/* Official Answer Section */}
+        <div className="md:col-span-2 p-5 bg-[#176B52]/5 rounded-2xl border border-[#176B52]/20 space-y-4 mt-2">
+          <h3 className="text-sm font-bold text-[#176B52] flex items-center gap-2">
+            <span>💬 시민연대 공식 답변 작성</span>
+          </h3>
+
+          <div>
+            <label className="block font-semibold text-gray-800 mb-1 text-xs">
+              관리자 공식 답변 내용
+            </label>
+            <textarea
+              value={adminAnswer}
+              onChange={(e) => setAdminAnswer(e.target.value)}
+              rows={4}
+              placeholder="시민제안에 대한 무안자치분권시민연대의 공식 검토결과 또는 답변을 입력하세요"
+              className="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 focus:ring-2 focus:ring-[#176B52] focus:outline-none text-sm bg-white"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block font-semibold text-gray-800 mb-1 text-xs">
+                답변일 (상태가 '답변 완료' 시 자동기록)
+              </label>
+              <input
+                type="date"
+                value={answeredAt}
+                onChange={(e) => setAnsweredAt(e.target.value)}
+                className="w-full border border-gray-300 rounded-xl px-3.5 py-2 focus:ring-2 focus:ring-[#176B52] focus:outline-none text-xs bg-white"
+              />
+            </div>
+
+            <div>
+              <label className="block font-semibold text-gray-800 mb-1 text-xs">
+                담당 위원회 또는 담당자 (선택)
+              </label>
+              <input
+                type="text"
+                value={assignedDepartment}
+                onChange={(e) => setAssignedDepartment(e.target.value)}
+                placeholder="예: 정책위원회, 환경위원회 등"
+                className="w-full border border-gray-300 rounded-xl px-3.5 py-2 focus:ring-2 focus:ring-[#176B52] focus:outline-none text-xs bg-white"
+              />
+            </div>
+          </div>
         </div>
       </div>
 

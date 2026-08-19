@@ -10,7 +10,7 @@ export type VoiceCategory =
   | "행정"
   | "기타";
 
-export type VoiceStatus = "접수" | "검토 중" | "공론화" | "정책제안" | "답변완료";
+export type VoiceStatus = "접수" | "검토 중" | "처리 중" | "답변 완료" | "답변완료" | "공론화" | "정책제안";
 
 export interface CitizenVoice {
   id: string;
@@ -22,6 +22,9 @@ export interface CitizenVoice {
   status: VoiceStatus;
   date: string;
   author: string;
+  adminAnswer?: string;
+  answeredAt?: string;
+  assignedDepartment?: string;
   allianceReview?: string; // 시민연대 검토상황
   isSample: boolean;
 }

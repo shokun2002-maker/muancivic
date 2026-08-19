@@ -15,7 +15,7 @@ export async function getPublishedIssues(): Promise<IssueArticle[]> {
         issue_principles (*),
         issue_updates (*)
       `)
-      .eq("status", "published")
+      .eq("visibility", "published")
       .order("created_at", { ascending: false });
 
     if (error || !data) {

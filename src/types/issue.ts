@@ -8,7 +8,8 @@ export interface Issue {
   title: string;
   slug: string;
   category: string;
-  status: string; // e.g., 'draft', '대응 중', 'published', 'hidden'
+  status: string; // 진행 상태: '대응 중' | '모니터링' | '해결' | '종료'
+  visibility: string; // 공개 여부: 'draft' | 'published'
   summary: string;
   overview?: string;
   current_situation?: string;

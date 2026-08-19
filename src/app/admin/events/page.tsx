@@ -17,7 +17,10 @@ import {
   MapPin,
   Loader2,
   ShieldAlert,
+  Users,
 } from "lucide-react";
+
+import EventApplicationsModal from "@/components/admin/EventApplicationsModal";
 
 export default function AdminEventsPage() {
   const [events, setEvents] = useState<EventDbRow[]>([]);
@@ -28,6 +31,10 @@ export default function AdminEventsPage() {
   const [selectedCategory, setSelectedCategory] = useState("전체");
   const [selectedStatus, setSelectedStatus] = useState("전체");
   const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  // Application Modal state
+  const [isAppModalOpen, setIsAppModalOpen] = useState(false);
+  const [selectedEventForApp, setSelectedEventForApp] = useState<{ id?: string; title?: string }>({});
 
   const fetchEvents = async () => {
     setLoading(true);
@@ -121,13 +128,26 @@ export default function AdminEventsPage() {
           </p>
         </div>
 
-        <Link
-          href="/admin/events/new"
-          className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#176B52] hover:bg-[#0D4938] text-white font-bold text-xs rounded-xl shadow transition-colors w-fit"
-        >
-          <Plus className="w-4 h-4" />
-          <span>신규 행사 등록</span>
-        </Link>
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={() => {
+              setSelectedEventForApp({});
+              setIsAppModalOpen(true);
+            }}
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold text-xs rounded-xl transition-colors"
+          >
+            <Users className="w-4 h-4 text-[#176B52]" />
+            <span>전체 신청자 관리</span>
+          </button>
+          <Link
+            href="/admin/events/new"
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#176B52] hover:bg-[#0D4938] text-white font-bold text-xs rounded-xl shadow transition-colors w-fit"
+          >
+            <Plus className="w-4 h-4" />
+            <span>신규 행사 등록</span>
+          </Link>
+        </div>
       </div>
 
       {/* Filter Bar */}
@@ -213,6 +233,17 @@ export default function AdminEventsPage() {
                         {evt.location || "-"}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-center space-x-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedEventForApp({ id: evt.id, title: evt.title });
+                            setIsAppModalOpen(true);
+                          }}
+                          className="inline-flex items-center gap-1 px-3 py-1.5 border border-[#176B52]/30 text-[#176B52] bg-[#176B52]/5 rounded-lg text-xs font-semibold hover:bg-[#176B52]/10 transition-colors"
+                        >
+                          <Users className="w-3.5 h-3.5" />
+                          <span>신청자</span>
+                        </button>
                         <Link
                           href={`/admin/events/${evt.id}/edit`}
                           className="inline-flex items-center gap-1 px-3 py-1.5 border border-gray-300 rounded-lg text-xs font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
@@ -267,6 +298,16 @@ export default function AdminEventsPage() {
                   </div>
 
                   <div className="pt-2 flex items-center justify-end gap-2 border-t border-gray-50">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedEventForApp({ id: evt.id, title: evt.title });
+                        setIsAppModalOpen(true);
+                      }}
+                      className="px-3 py-1.5 border border-[#176B52]/30 text-[#176B52] bg-[#176B52]/5 rounded-lg text-xs font-semibold"
+                    >
+                      신청자 목록
+                    </button>
                     <Link
                       href={`/admin/events/${evt.id}/edit`}
                       className="px-3 py-1.5 border border-gray-300 rounded-lg text-xs font-semibold text-gray-700 bg-white"
@@ -288,6 +329,14 @@ export default function AdminEventsPage() {
           </>
         )}
       </div>
+
+      {/* Event Applications Management Modal */}
+      <EventApplicationsModal
+        isOpen={isAppModalOpen}
+        onClose={() => setIsAppModalOpen(false)}
+        eventId={selectedEventForApp.id}
+        eventTitle={selectedEventForApp.title}
+      />
     </div>
   );
 }

@@ -7,7 +7,7 @@ import CategoryBadge from "@/components/CategoryBadge";
 import StatusBadge from "@/components/StatusBadge";
 import ShareButtons from "@/components/ShareButtons";
 import { CitizenVoice } from "@/data/voices";
-import { ChevronLeft, ThumbsUp, Calendar, User } from "lucide-react";
+import { ChevronLeft, ThumbsUp, Calendar, User, MessageSquare } from "lucide-react";
 
 export default function VoiceDetailClient({ voice }: { voice: CitizenVoice }) {
   const [likesCount, setLikesCount] = useState(voice.likesCount);
@@ -75,7 +75,7 @@ export default function VoiceDetailClient({ voice }: { voice: CitizenVoice }) {
           </div>
 
           {/* Like Action Box */}
-          <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+          <div className="flex items-center justify-between pt-4 border-t border-gray-100 mb-8">
             <span className="text-xs text-gray-500 font-medium">
               이 시민 제안에 공감하시나요?
             </span>
@@ -92,6 +92,46 @@ export default function VoiceDetailClient({ voice }: { voice: CitizenVoice }) {
               <ThumbsUp className={`w-4 h-4 ${isLiked ? "fill-white" : ""}`} />
               <span>공감해요 ({likesCount})</span>
             </button>
+          </div>
+
+          {/* Citizen Alliance Official Answer Section */}
+          <div className="pt-8 border-t border-gray-200">
+            <div className="flex items-center gap-2 mb-4">
+              <span className="p-2 bg-[#176B52]/10 rounded-xl text-[#176B52]">
+                <MessageSquare className="w-5 h-5" />
+              </span>
+              <h2 className="text-lg font-extrabold text-[#222222]">
+                시민연대 답변
+              </h2>
+            </div>
+
+            {voice.adminAnswer ? (
+              <div className="bg-[#176B52]/5 border border-[#176B52]/20 rounded-2xl p-6 sm:p-8 space-y-4">
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#176B52]/10 pb-4">
+                  <span className="text-xs font-extrabold text-[#176B52] bg-white px-3 py-1.5 rounded-lg border border-[#176B52]/20 shadow-xs">
+                    공식 답변 완료
+                  </span>
+                  <div className="flex items-center gap-3 text-xs text-gray-500 font-medium">
+                    {voice.assignedDepartment && (
+                      <span className="font-semibold text-gray-700">
+                        담당: {voice.assignedDepartment}
+                      </span>
+                    )}
+                    {voice.answeredAt && (
+                      <span>답변일: {voice.answeredAt}</span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="text-sm text-[#222222] leading-relaxed whitespace-pre-wrap font-normal pt-2">
+                  {voice.adminAnswer}
+                </div>
+              </div>
+            ) : (
+              <div className="bg-gray-50 border border-gray-200/80 rounded-2xl p-6 text-center text-sm text-gray-600 font-medium">
+                <p>현재 시민연대에서 해당 의견을 검토하고 있습니다.</p>
+              </div>
+            )}
           </div>
         </div>
 
